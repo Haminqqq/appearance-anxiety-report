@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsdsvikx0xc5q"
-path="res://.godot/imported/mirror-game.icon.png-af2f8de4127ca2f9efd4b8f2138dd824.ctex"
+uid="uid://d2y2yhlcmxq0p"
+path="res://.godot/imported/mirror-game.icon.png-83004f5e71c8925dfb4fd6aacb57fc4c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://mirror-game.icon.png"
-dest_files=["res://.godot/imported/mirror-game.icon.png-af2f8de4127ca2f9efd4b8f2138dd824.ctex"]
+source_file="res://godot-game/mirror-game.icon.png"
+dest_files=["res://.godot/imported/mirror-game.icon.png-83004f5e71c8925dfb4fd6aacb57fc4c.ctex"]
 
 [params]
 
