@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>打破容貌焦慮的枷鎖</title>
@@ -10,6 +11,34 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js"></script>
+
+    <script>
+        function showTitleAndHint() {
+                const heroContent = document.querySelector('.hero-content');
+                const hint = document.querySelector('.scroll-hint');
+                const h1 = heroContent.querySelector('h1');
+                const p = heroContent.querySelector('p');
+
+                // 確保 hero-content 顯示
+                heroContent.style.display = 'block'; // 显示内容
+                heroContent.classList.add('fade-in');
+
+                // 將 h1 和 p 的透明度設置為 1，並添加淡入效果
+                setTimeout(() => {
+                    h1.style.opacity = '1';  
+                    p.style.opacity = '1';
+                }, 500);  // 500 毫秒後觸發淡入
+
+                // 延遲顯示提示文字，並添加閃爍效果的 class
+                setTimeout(() => {
+                    hint.style.display = 'block';  
+                    hint.classList.add('fade-in-out');
+                }, 500); // 2秒後顯示提示文字
+        }
+
+    </script>
+   
+    
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
@@ -25,17 +54,33 @@
             padding: 40px 20px;
             text-align: center;
         }
-        h1 {
-            font-size: 3em;
-            font-weight: 700;
-            margin-bottom: 20px;
+        
+        .scroll-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2em;
+            color: #FFFFFF;
             opacity: 0;
-            animation: fadeIn 2s ease-in forwards;
+            animation: fadeInOut 2s ease-in-out infinite;  /* 閃爍效果 */
+            display: none;
+            cursor: pointer;
+            z-index: 11;  /* 設置比 hero-content 稍高 z-index */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+
+        /* 閃爍效果 */
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
+
+        /* 淡入效果 */
+        .fade-in {
+            opacity: 1;  /* 淡入顯示 */
+        }
+
         .content {
             max-width: 800px;
             margin: 20pt auto; /* 預留 20pt 距離 */
@@ -77,41 +122,64 @@
             padding: 20px;
             font-size: 0.9em;
         }
+        
         .hero {
-            background-image: url('images/mirror_piece.png');
-            background-size: cover; /* 使圖片填滿整個螢幕 */
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
+            position: relative;
+            width: 100%;
+            height: 100vh; /* 全屏 */
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #FFFFFF;
+            justify-content: space-between; /* 顶部和底部分开 */
             text-align: center;
+            background-color: #000; /* 背景色可以根据需求调整 */
         }
+
         .hero-content {
-            padding: 40px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
+            position: relative;
+            top: 50%; 
+            transform: translateY(-50%); /* 垂直居中标题 */
+            z-index: 10; /* 确保标题在最上层 */
+            pointer-events: none; /* 禁用标题的点击事件，使下层元素可以拖动 */
         }
+                
         .hero h1, .hero p {
-            opacity: 0;
-            animation: fadeIn 2s ease-in forwards;
-        }
-        .hero h1 {
-            font-size: 4em;
-            margin-bottom: 20px;
             color: #ffffff;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            opacity: 0; /* 初始透明度為0 */
+            transition: opacity 2s ease-in-out; /* 添加淡入過渡效果 */
+            margin: 0; 
+            padding: 0; 
+            text-align: center; /* 置中 */
         }
+
+        .hero h1 {
+            font-size: 4em;
+            font-weight: 700;
+        }
+
         .hero p {
             font-size: 1.5em;
             margin-bottom: 30px;
-            color: #ffffff;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
+        .interactive-game {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;  /* 設置比 hero-content 低的層級 */
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            object-fit: cover;
+        }
+
         .dot-nav {
             position: fixed;
             right: 20px;
@@ -142,13 +210,7 @@
             background-color: #333; /* 選取時變深灰色 */
             transform: scale(1.2);
         }
-        .interactive-game {
-            padding: 20px;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 600px;
-            position: relative;
-        }
+        
         .mirror-pieces {
             display: flex;
             flex-wrap: wrap;
@@ -182,22 +244,7 @@
             top: 0;
             left: 0;
         }
-        .scroll-hint {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.2em;
-            color: #FFFFFF;
-            opacity: 0;
-            animation: fadeInOut 2s ease-in-out infinite;
-            display: none;
-            cursor: pointer;
-        }
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
+        
         .skip-game {
             position: absolute;
             bottom: 10px;
@@ -314,8 +361,37 @@
         .empty-section {
             height: 100vh; /* 空白區域的高度 */
         }
+        /* 半透明提示框 */
+        .game-hint {
+            position: absolute;
+            top: 83%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10%; /* 占据 80% 的屏幕宽度 */
+            padding: 17px;
+            background-color: rgba(0, 0, 0, 0.7); /* 半透明黑色背景 */
+            color: #ffffff;
+            text-align: center;
+            font-size: 1em;
+            border-radius: 15px; /* 圆角 */
+            z-index: 9999; /* 保证在游戏层之上 */
+            opacity: 0; /* 初始透明度为0，用于淡入效果 */
+            pointer-events: none; /* 禁用点击事件，不干扰游戏 */
+            transition: opacity 0.5s ease-in-out; /* 淡入淡出效果 */
+        }
+
+        /* 提示框内文字 */
+        .game-hint p {
+            margin: 0;
+            font-size: 1em;
+            line-height: 1.5;
+            font-weight: bold;
+        }
+
 
     </style>
+    
+
 
 </head>
 <body>
@@ -327,20 +403,47 @@
             <li><a href="#section3" class="dot" data-section="section3"></a></li>
         </ul>
     </nav>
+    
+    <div class="game-hint" id="game-hint">
+        <p>拖曳碎片來拼合鏡子！</p>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameHint = document.getElementById('game-hint');
+            const gameIframe = document.querySelector('iframe'); // 找到游戏 iframe
+            let hasShownHint = false; // 确保只显示一次提示框
 
-    <div class="hero" id="game-section">
-        <div class="interactive-game">
-            <iframe src="godot-game/mirror-game.html" width="960" height="600" frameborder="0"></iframe> <!-- 插入 Godot 遊戲 -->
-            <div class="skip-game">跳過遊戲</div>
-        </div>
+            // 当游戏加载完成时执行
+            gameIframe.onload = function() {
+                if (!hasShownHint) {
+                    // 游戏加载完成，显示提示框
+                    setTimeout(function() {
+                        gameHint.style.opacity = '1'; // 显示提示框
+
+                        // 3秒后隐藏提示框
+                        setTimeout(function() {
+                            gameHint.style.opacity = '0'; // 隐藏提示框
+                        }, 3000); // 3秒后自动隐藏
+                    }, 1000); // 延迟 1 秒后显示提示框，确保游戏画面完全加载
+                    hasShownHint = true; // 标记提示框已显示
+                }
+            };
+        });
+    </script>
+
+    <div class="hero">
         <div class="hero-content">
             <h1>打破容貌焦慮的枷鎖</h1>
             <p>從釐清迷思到跳脫焦慮的指南</p>
+        </div>
+        <div class="interactive-game">
+            <iframe src="godot-game/mirror-game.html"></iframe> <!-- 插入 Godot 遊戲 -->
         </div>
         <div class="scroll-hint">向下滾動以繼續閱讀</div>
     </div>
     
 
+  
 
     <div class="content">
         <h2>第一章：容貌焦慮的現狀</h2>
@@ -351,9 +454,9 @@
         </div>
 
         <section class="section" id="section1">
-            <h2 class="section-title">第一章：認識容貌焦慮</h2>
+            <h2 class="section-title">第一章：認��容貌焦慮</h2>
             <p>容貌焦慮是一種常見的心理現象，它指的是個人對自己外表的過度關注和擔憂。這種焦慮可能源於社會對美的標準、媒體的影響，或個人經歷等多方面因素。</p>
-            <p>在這一章中，我們將深入探討容貌慮的定義、成因，以及它對個人生活和社會關係的影響。通過了解容貌焦慮的本質，我們可以更好地應對這種心理壓力，邁向更健康、更自信的生活。</p>
+            <p>在這一章中，我們將深入探討容貌慮的定義、成因，以及它對個人生活和社會關係的影響。通過了解容貌焦慮的本質，我們可以更好地應對這種心理壓力，邁更健康、更自信的生活。</p>
             
             <!-- 心理測驗內容 -->
             <div id="quiz-container">
@@ -373,7 +476,7 @@
                     <div class="question" id="question-2" style="display:none;">
                         <p>2. 你認為自己的外表怎麼樣？</p>
                         <label><input type="radio" name="q2" value="4"> 非常不好看</label>
-                        <label><input type="radio" name="q2" value="3"> 不好���</label>
+                        <label><input type="radio" name="q2" value="3"> 不好</label>
                         <label><input type="radio" name="q2" value="2"> 還好</label>
                         <label><input type="radio" name="q2" value="1"> 有點不好看</label>
                         <label><input type="radio" name="q2" value="0"> 完全不覺得難看</label>
@@ -484,7 +587,7 @@
     <div class="content">
         <section class="section" id="section3">
             <h2 class="section-title">第三章：社群媒體與容貌焦慮</h2>
-            <p>在現代社會��社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
+            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
             <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
             <ul>
                 <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷</li>
@@ -631,50 +734,9 @@ document.addEventListener('scroll', handleScroll);
                 console.error('未找到導航點元素');
             }
 
-            const heroContent = document.querySelector('.hero-content');
-            const scrollHint = document.querySelector('.scroll-hint');
             const content = document.querySelector('.content');
-            const skipGame = document.querySelector('.skip-game');
-            const interactiveGame = document.querySelector('.interactive-game');
-
-            // Unity 遊戲加載完成後的回調
-            window.unityGameLoaded = function() {
-                console.log("Unity game loaded");
-                // 這裡可以添加遊戲加載完成後的邏輯
-            }
-
-            // 遊戲完成的回調函數
-            window.unityGameCompleted = function() {
-                showHeroContent();
-            }
-
-            function showHeroContent() {
-                const heroElement = document.querySelector('.hero');
-                const imageUrl = 'images/mirror_piece.png';
+    
                 
-                const img = new Image();
-                img.onload = function() {
-                    heroElement.style.backgroundImage = `url('${imageUrl}')`;
-                    heroElement.style.backgroundSize = 'cover'; // 設定成 cover
-                    heroContent.style.display = 'block';
-                    document.querySelector('.interactive-game').style.display = 'none';
-                    scrollHint.style.display = 'block';
-                    console.log('背景圖片加載成功');
-                };
-                img.onerror = function() {
-                    console.error(`無法加載圖片：${imageUrl}`);
-                    // 設置一個後備背景顏色
-                    heroElement.style.backgroundColor = '#000';
-                    heroContent.style.display = 'block';
-                    document.querySelector('.interactive-game').style.display = 'none';
-                    scrollHint.style.display = 'block';
-                };
-                img.src = imageUrl;
-            }
-
-            skipGame.addEventListener('click', function() {
-                showHeroContent();
-            });
 
             scrollHint.addEventListener('click', () => {
                 scrollToContent();
@@ -684,14 +746,7 @@ document.addEventListener('scroll', handleScroll);
                 const heroHeight = document.querySelector('.hero').offsetHeight;
                 const scrollPosition = window.scrollY;
 
-                if (scrollPosition > heroHeight - 100) {
-                    content.style.opacity = '1';
-                    scrollHint.style.display = 'none';
-                } else {
-                    if (heroContent.style.display === 'block') {
-                        scrollHint.style.display = 'block';
-                    }
-                }
+              
 
                 // 計算滾動比例
                 const scrollRatio = Math.min(scrollPosition / heroHeight, 1);
