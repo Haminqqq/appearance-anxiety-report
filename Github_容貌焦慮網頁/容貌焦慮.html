@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打破容貌焦慮的枷鎖</title>
+    <script src="Build/UnityLoader.js"></script>
+    <script>
+        var unityInstance = UnityLoader.instantiate("unity-canvas", "Build/YourBuildName.json");
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(#8C8069, #F3E6CC);
+            color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            transition: background 0.5s ease-in-out;
+        }
+        header {
+            background-color: #000000;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeIn 2s ease-in forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .content {
+            max-width: 800px;
+            margin: 20pt auto; /* 預留 20pt 距離 */
+            padding: 40px 20px;
+            opacity: 1; /* 確保內容可見 */
+            transition: opacity 0.5s ease-in-out;
+            position: relative; /* 使子元素的定位相對於此元素 */
+            color: #3E3E40; /* 文字改成指定顏色 */
+        }
+        .content::before {
+            content: '';
+            position: absolute;
+            top: -10pt; /* 預留 10pt 距離 */
+            left: -20pt; /* 左右各 20pt */
+            right: -20pt;
+            bottom: -10pt; /* 預留 10pt 距離 */
+            background-color: rgba(255, 255, 255, 0.9); /* 白色背景，有點透 */
+            border-radius: 10pt; /* 邊角為圓角 */
+            z-index: -1; /* 使背景層在文字層之下 */
+        }
+        .section {
+            margin-bottom: 60px;
+        }
+        .section-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        a {
+            color: #FFD700;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            background-color: #111111;
+            color: #999999;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+        .hero {
+            background-image: url('images/mirror_piece.png');
+            background-size: cover; /* 使圖片填滿整個螢幕 */
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            text-align: center;
+        }
+        .hero-content {
+            padding: 40px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .hero h1, .hero p {
+            opacity: 0;
+            animation: fadeIn 2s ease-in forwards;
+        }
+        .hero h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .hero p {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .dot-nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9999;
+            padding: 10px;
+            border-radius: 20px;
+        }
+        .dot-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .dot-nav li {
+            margin: 10px 0;
+        }
+        .dot {
+            display: block;
+            width: 15px; /* 調整圓點尺寸 */
+            height: 15px; /* 調整圓點尺寸 */
+            border-radius: 50%;
+            background-color: #fff; /* 白色圓點 */
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        .dot.active {
+            background-color: #333; /* 選取時變深灰色 */
+            transform: scale(1.2);
+        }
+        .interactive-game {
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+        .mirror-pieces {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .mirror-piece {
+            width: 100px;
+            height: 100px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            cursor: move;
+        }
+        .mirror-target {
+            width: 300px;
+            height: 300px;
+            background-image: url('images/mirror_piece.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 0 auto;
+            position: relative;
+        }
+        .dropped-piece {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            top: 0;
+            left: 0;
+        }
+        .scroll-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2em;
+            color: #FFFFFF;
+            opacity: 0;
+            animation: fadeInOut 2s ease-in-out infinite;
+            display: none;
+            cursor: pointer;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        .skip-game {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: #FFD700;
+            color: #000000;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #chart-container {
+            width: 80%;
+            margin: 50px auto;
+        }
+        .full-screen-section {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-size: cover; /* 使圖片填滿整個螢幕 */
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .full-screen-section.adventure {
+            background-image: url('images/adventure_game.png'); /* 設置背景圖 */
+        }
+        
+        .full-screen-section.chapter3 {
+            background-image: url('images/chapter3.png'); /* 設置背景圖 */
+        }
+
+        .full-screen-section.chapter4 {
+            background-image: url('images/chapter4.png'); /* 設置背景圖 */
+        }
+
+        .full-screen-section.chapter5 {
+            background-image: url('images/chapter5.png'); /* 設置背景圖 */
+        }
+        .chapter-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.5); /* 透底背景 */
+            color: #FFFFFF;
+            padding: 40px; /* 上下左右各增加 20pt */
+            border-radius: 10px;
+            text-align: center;
+            font-size: 2.5em; /* 放大 20pt */
+        }
+        #quiz-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 50px auto;
+            color: #3E3E40; /* 設置文字顏色 */
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 5px 0;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #trigger-section {
+            height: 300vh; /* 使 section 足够高来触发滚动 */
+            position: relative;
+        }
+
+        .image-switch {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30%; /* 根据需要调整图片大小 */
+            display: none; /* 初始隐藏 */
+            opacity: 1; /* 初始不透明 */
+            transition: opacity 1s ease-out; /* 添加淡出效果 */
+        }
+
+        .hidden {
+            opacity: 0; /* 设置淡出后的透明度 */
+        }
+        .fade-in {
+            opacity: 0;
+            animation: fadeInText 2s forwards;
+        }
+
+        @keyframes fadeInText {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .empty-section {
+            height: 100vh; /* 空白區域的高度 */
+        }
+
+    </style>
+
+</head>
+<body>
+    <nav class="dot-nav">
+        <ul>
+            <li><a href="#game-section" class="dot" data-section="game-section"></a></li>
+            <li><a href="#section1" class="dot" data-section="section1"></a></li>
+            <li><a href="#section2" class="dot" data-section="section2"></a></li>
+            <li><a href="#section3" class="dot" data-section="section3"></a></li>
+        </ul>
+    </nav>
+
+    <div class="hero" id="game-section">
+        <div class="interactive-game">
+            <iframe src="godot-game/mirror-game.html" width="960" height="600" frameborder="0"></iframe> <!-- 插入 Godot 遊戲 -->
+            <div class="skip-game">跳過遊戲</div>
+        </div>
+        <div class="hero-content">
+            <h1>打破容貌焦慮的枷鎖</h1>
+            <p>從釐清迷思到跳脫焦慮的指南</p>
+        </div>
+        <div class="scroll-hint">向下滾動以繼續閱讀</div>
+    </div>
+    
+
+
+    <div class="content">
+        <h2>第一章：容貌焦慮的現狀</h2>
+        <p><!-- 原有的段落內容 --></p>
+
+        <div id="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+
+        <section class="section" id="section1">
+            <h2 class="section-title">第一章：認識容貌焦慮</h2>
+            <p>容貌焦慮是一種常見的心理現象，它指的是個人對自己外表的過度關注和擔憂。這種焦慮可能源於社會對美的標準、媒體的影響，或個人經歷等多方面因素。</p>
+            <p>在這一章中，我們將深入探討容貌慮的定義、成因，以及它對個人生活和社會關係的影響。通過了解容貌焦慮的本質，我們可以更好地應對這種心理壓力，邁向更健康、更自信的生活。</p>
+            
+            <!-- 心理測驗內容 -->
+            <div id="quiz-container">
+                <h2>怎麼知道自己是否患有容貌焦慮症？</h2>
+                <form id="quiz-form">
+                    <!-- 題目 1 -->
+                    <div class="question" id="question-1">
+                        <p>1. 你一天會刻意檢查自己的外貌幾次？（不小心瞥到鏡子看一下那種不算）</p>
+                        <label><input type="radio" name="q1" value="4"> 40次</label>
+                        <label><input type="radio" name="q1" value="3"> 20次</label>
+                        <label><input type="radio" name="q1" value="2"> 10次</label>
+                        <label><input type="radio" name="q1" value="1"> 5</label>
+                        <label><input type="radio" name="q1" value="0"> 從不</label>
+                        <button type="button" onclick="nextQuestion(1)">下一題</button>
+                    </div>
+                    <!-- 題目 2 -->
+                    <div class="question" id="question-2" style="display:none;">
+                        <p>2. 你認為自己的外表怎麼樣？</p>
+                        <label><input type="radio" name="q2" value="4"> 非常不好看</label>
+                        <label><input type="radio" name="q2" value="3"> 不好���</label>
+                        <label><input type="radio" name="q2" value="2"> 還好</label>
+                        <label><input type="radio" name="q2" value="1"> 有點不好看</label>
+                        <label><input type="radio" name="q2" value="0"> 完全不覺得難看</label>
+                        <button type="button" onclick="nextQuestion(2)">下一題</button>
+                    </div>
+                    <!-- 題目 3 -->
+                    <div class="question" id="question-3" style="display:none;">
+                        <p>3. 你的外貌會讓你心情低落嗎？</p>
+                        <label><input type="radio" name="q3" value="4"> 極度低落</label>
+                        <label><input type="radio" name="q3" value="3"> 非常低落</label>
+                        <label><input type="radio" name="q3" value="2"> 中等</label>
+                        <label><input type="radio" name="q3" value="1"> 有點低落</label>
+                        <label><input type="radio" name="q3" value="0"> 完全低落</label>
+                        <button type="button" onclick="nextQuestion(3)">下一題</button>
+                    </div>
+                    <!-- 題目 4 -->
+                    <div class="question" id="question-4" style="display:none;">
+                        <p>4. 你有多常因為自己的外貌避免社交活動？</p>
+                        <label><input type="radio" name="q4" value="4"> 每次</label>
+                        <label><input type="radio" name="q4" value="3"> 10次中有7次</label>
+                        <label><input type="radio" name="q4" value="2"> 10次中有5次</label>
+                        <label><input type="radio" name="q4" value="1"> 10次中有3次</label>
+                        <label><input type="radio" name="q4" value="0"> 從不</label>
+                        <button type="button" onclick="nextQuestion(4)">下一題</button>
+                    </div>
+                    <!-- 題目 5 -->
+                    <div class="question" id="question-5" style="display:none;">
+                        <p>5. 容貌問題多常佔據你的思考時間？</p>
+                        <label><input type="radio" name="q5" value="4"> 極度頻繁</label>
+                        <label><input type="radio" name="q5" value="3"> 時常</label>
+                        <label><input type="radio" name="q5" value="2"> 半數時間</label>
+                        <label><input type="radio" name="q5" value="1"> 有時</label>
+                        <label><input type="radio" name="q5" value="0"> 完全不會</label>
+                        <button type="button" onclick="nextQuestion(5)">下一題</button>
+                    </div>
+                    <!-- 題目 6 -->
+                    <div class="question" id="question-6" style="display:none;">
+                        <p>6. 外貌對你的伴侶、戀愛生活造成多大的影響？</p>
+                        <label><input type="radio" name="q6" value="4"> 極大影響</label>
+                        <label><input type="radio" name="q6" value="3"> 很大影響</label>
+                        <label><input type="radio" name="q6" value="2"> 中等影響</label>
+                        <label><input type="radio" name="q6" value="1"> 有點影響</label>
+                        <label><input type="radio" name="q6" value="0"> 沒影響</label>
+                        <button type="button" onclick="nextQuestion(6)">下一題</button>
+                    </div>
+                    <!-- 題目 7 -->
+                    <div class="question" id="question-7" style="display:none;">
+                        <p>7. 外貌對你的工作、學習能力造成多大影響？</p>
+                        <label><input type="radio" name="q7" value="4"> 極大影響導致無法處理</label>
+                        <label><input type="radio" name="q7" value="3"> 很大影響</label>
+                        <label><input type="radio" name="q7" value="2"> 中等影響</label>
+                        <label><input type="radio" name="q7" value="1"> 有點影響</label>
+                        <label><input type="radio" name="q7" value="0"> 沒影響</label>
+                        <button type="button" onclick="nextQuestion(7)">下一題</button>
+                    </div>
+                    <!-- 題目 8 -->
+                    <div class="question" id="question-8" style="display:none;">
+                        <p>8. 外貌對你的社交生活造成多大的干擾？</p>
+                        <label><input type="radio" name="q8" value="4"> 極大</label>
+                        <label><input type="radio" name="q8" value="3"> 非常</label>
+                        <label><input type="radio" name="q8" value="2"> 中等</label>
+                        <label><input type="radio" name="q8" value="1"> 有</label>
+                        <label><input type="radio" name="q8" value="0"> 完全不會</label>
+                        <button type="button" onclick="nextQuestion(8)">下一題</button>
+                    </div>
+                    <!-- 目 9 -->
+                    <div class="question" id="question-9" style="display:none;">
+                        <p>9. 外貌對於定義「你是誰」很重要，你認同這句話嗎？</p>
+                        <label><input type="radio" name="q9" value="4"> 超級認同</label>
+                        <label><input type="radio" name="q9" value="3"> 非常認同</label>
+                        <label><input type="radio" name="q9" value="2"> 中等認同</label>
+                        <label><input type="radio" name="q9" value="1"> 有點認同</label>
+                        <label><input type="radio" name="q9" value="0"> 完全不認同</label>
+                        <button type="button" onclick="calculateScore()">提交</button>
+                    </div>
+                </form>
+                <div id="result"></div>
+            </div>
+        </section>
+    </div>
+
+    <section class="full-screen-section adventure" id="unity-game-section">
+        <canvas id="unity-canvas" width="960" height="600"></canvas>
+        <div class="skip-game">跳過遊戲</div>
+        <div class="chapter-title">【容貌囚徒】<br>我為什麼不好看？</div>
+    </section>
+
+    <div class="content">
+        <section class="section" id="section2">
+            <h2 class="section-title">第二章：【容貌囚徒】我為什麼不好看？</h2>
+            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
+            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
+            <ul>
+                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷。</li>
+                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
+                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
+                <li>尋求支持：與朋友和家人分享你的感，尋求他們支持和理解。</li>
+            </ul>
+        </section>
+
+        
+    </div>
+
+    <section class="full-screen-section chapter3" id="chapter3-section">
+        <div class="chapter-title">【世代差異】<br>不同年齡層的容貌焦慮觀察</div>
+    </section>
+
+    <div class="content">
+        <section class="section" id="section3">
+            <h2 class="section-title">第三章：社群媒體與容貌焦慮</h2>
+            <p>在現代社會��社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
+            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
+            <ul>
+                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷</li>
+                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
+                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
+                <li>尋求支持：與朋友和家人分享你的感受，尋求他們的支持和理解。</li>
+            </ul>
+        </section>
+    </div>
+
+    <section class="full-screen-section chapter4" id="chapter4-section">
+        <div class="chapter-title">【全屏背景圖】<br>章節間的過渡</div>
+    </section>
+       
+    <div class="content">
+        <section class="section" id="section4">
+            <h2 class="section-title">第四章：社群媒體與容貌焦慮</h2>
+            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
+            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
+            <ul>
+                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷</li>
+                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
+                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
+                <li>尋求支持：與朋友和家人分享你的感受，尋求他們的支持和理解。</li>
+            </ul>
+        </section>
+
+    </div>
+
+    <section id="trigger-section" style="text-align: center;">
+        <img src="images/test1.png" class="image-switch" id="image1" style="width: 30%; display: none; margin: 0 auto;">
+        <img src="images/test2.png" class="image-switch" id="image2" style="width: 30%; display: none; margin: 0 auto;">
+        <img src="images/test3.png" class="image-switch" id="image3" style="width: 30%; display: none; margin: 0 auto;">
+        <img src="images/test4.png" class="image-switch" id="image4" style="width: 30%; display: none; margin: 0 auto;">
+        <div class="empty-section"></div>
+    </section>
+
+    <!-- 新增的空白區域 -->
+    <section class="empty-section" style="height: 250vh;"></section>
+
+    <div class="content">
+        <section class="section" id="section5">
+            <h2 class="section-title">內文文字</h2>
+            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
+            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
+            <ul>
+                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷</li>
+                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
+                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
+                <li>尋求支持：與朋友和家人分享你的感受，尋求他們的支持和理解。</li>
+            </ul>
+        </section>
+    </div>
+
+    <script>
+    function handleScroll() {
+    const triggerSection = document.getElementById('trigger-section');
+    const images = document.querySelectorAll('.image-switch');
+    const sectionTop = triggerSection.getBoundingClientRect().top + window.scrollY;
+    const sectionHeight = triggerSection.offsetHeight;
+    const scrollPosition = window.scrollY;
+
+    // 定义每张图片显示的滚动触发点
+    const triggerPoints = [
+        sectionTop,                             // 第一张图片显示的开始
+        sectionTop + sectionHeight / 4,         // 第二张图片显示的开始
+        sectionTop + (sectionHeight / 4) * 2,   // 第三张图片显示的开始
+        sectionTop + (sectionHeight / 4) * 3    // 第四张图片显示的开始
+    ];
+
+    images.forEach((img, index) => {
+        if (scrollPosition >= triggerPoints[index] && (index === images.length - 1 || scrollPosition < triggerPoints[index + 1])) {
+            img.style.display = 'block';
+            img.classList.remove('hidden');
+        } else {
+            img.style.display = 'none';
+        }
+    });
+
+    // 处理最后一张图片的淡出效果
+    const lastImage = images[images.length - 1];
+    const fadeOutTrigger = triggerPoints[triggerPoints.length - 1] + sectionHeight / 4;
+
+    if (scrollPosition >= fadeOutTrigger) {
+        lastImage.classList.add('hidden');
+    } else {
+        lastImage.classList.remove('hidden');
+    }
+
+    // 当最后一张图片完全消失时显示文字
+    const textElement = document.getElementById('fade-text');
+    const textTrigger = fadeOutTrigger + sectionHeight / 4;
+
+    if (scrollPosition >= textTrigger) { // 确保图片完全消失后再显示文字
+        textElement.style.display = 'block';
+        textElement.classList.add('fade-in');
+    } else {
+        textElement.style.display = 'none';
+        textElement.classList.remove('fade-in');
+    }
+
+    // 当最后一张图片完全淡出后显示 section5
+    const section5 = document.getElementById('section5');
+    const blankSpaceTrigger = textTrigger + window.innerHeight; // 空白區域的觸發點
+
+    if (scrollPosition >= blankSpaceTrigger) {
+        section5.style.display = 'block';
+    } else {
+        section5.style.display = 'none';
+    }
+}
+
+document.addEventListener('scroll', handleScroll);
+
+    </script>
+
+
+    <section class="full-screen-section chapter5" id="chapter5-section">
+        <div class="chapter-title">【打破枷鎖】<br>不同年齡層的容貌焦慮觀察</div>
+    </section>
+
+    <div class="content">
+        <section class="section" id="section6">
+            <h2 class="section-title">第五章：社群媒體與容貌焦慮</h2>
+            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
+            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
+            <ul>
+                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷。</li>
+                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
+                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
+                <li>尋求持：與朋友和家人分享你的感受，尋求他們的支持和理解。</li>
+            </ul>
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM 加載完成，開始初始化導航點');
+            const dotNav = document.querySelector('.dot-nav');
+            if (dotNav) {
+                console.log('找到導航點元素:', dotNav);
+            } else {
+                console.error('未找到導航點元素');
+            }
+
+            const heroContent = document.querySelector('.hero-content');
+            const scrollHint = document.querySelector('.scroll-hint');
+            const content = document.querySelector('.content');
+            const skipGame = document.querySelector('.skip-game');
+            const interactiveGame = document.querySelector('.interactive-game');
+
+            // Unity 遊戲加載完成後的回調
+            window.unityGameLoaded = function() {
+                console.log("Unity game loaded");
+                // 這裡可以添加遊戲加載完成後的邏輯
+            }
+
+            // 遊戲完成的回調函數
+            window.unityGameCompleted = function() {
+                showHeroContent();
+            }
+
+            function showHeroContent() {
+                const heroElement = document.querySelector('.hero');
+                const imageUrl = 'images/mirror_piece.png';
+                
+                const img = new Image();
+                img.onload = function() {
+                    heroElement.style.backgroundImage = `url('${imageUrl}')`;
+                    heroElement.style.backgroundSize = 'cover'; // 設定成 cover
+                    heroContent.style.display = 'block';
+                    document.querySelector('.interactive-game').style.display = 'none';
+                    scrollHint.style.display = 'block';
+                    console.log('背景圖片加載成功');
+                };
+                img.onerror = function() {
+                    console.error(`無法加載圖片：${imageUrl}`);
+                    // 設置一個後備背景顏色
+                    heroElement.style.backgroundColor = '#000';
+                    heroContent.style.display = 'block';
+                    document.querySelector('.interactive-game').style.display = 'none';
+                    scrollHint.style.display = 'block';
+                };
+                img.src = imageUrl;
+            }
+
+            skipGame.addEventListener('click', function() {
+                showHeroContent();
+            });
+
+            scrollHint.addEventListener('click', () => {
+                scrollToContent();
+            });
+
+            window.addEventListener('scroll', function() {
+                const heroHeight = document.querySelector('.hero').offsetHeight;
+                const scrollPosition = window.scrollY;
+
+                if (scrollPosition > heroHeight - 100) {
+                    content.style.opacity = '1';
+                    scrollHint.style.display = 'none';
+                } else {
+                    if (heroContent.style.display === 'block') {
+                        scrollHint.style.display = 'block';
+                    }
+                }
+
+                // 計算滾動比例
+                const scrollRatio = Math.min(scrollPosition / heroHeight, 1);
+                // 計算新的背景顏色
+                const startColor = [140, 128, 105]; // #8C8069
+                const endColor = [243, 230, 204]; // #F3E6CC
+                const newColor = startColor.map((start, index) => {
+                    const end = endColor[index];
+                    return Math.round(start + (end - start) * scrollRatio);
+                });
+                document.body.style.backgroundColor = `rgb(${newColor.join(',')})`;
+            });
+
+            function scrollToContent() {
+                const heroHeight = document.querySelector('.hero').offsetHeight;
+                window.scrollTo({
+                    top: heroHeight,
+                    behavior: 'smooth'
+                });
+                setTimeout(() => {
+                    content.style.opacity = '1';
+                }, 500);
+            }
+
+            // 圖表相關代碼
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var finalData = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]; // 最終數據
+            var maxValue = Math.max(...finalData);
+
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['2021年3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', '2022年1月', '2月'],
+                    datasets: [{
+                        label: '臉書提及「容貌焦慮」的貼文數',
+                        data: Array(finalData.length).fill(0), // 初始化為全 0
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: maxValue // 設置 y 軸的最大值
+                        }
+                    },
+                    animation: false // 禁用 Chart.js 的內建動畫
+                }
+            });
+
+            // 創建 ScrollMagic 控制器
+            var controller = new ScrollMagic.Controller();
+
+            // 動畫狀態
+            var isAnimating = false;
+
+            // 創建場景
+            var scene = new ScrollMagic.Scene({
+                triggerElement: "#chart-container",
+                triggerHook: 0.8, // 當元素的 80% 進入視窗時觸發
+                reverse: true // 允許重複觸發
+            })
+            .on('enter', function () {
+                if (!isAnimating) {
+                    animateChart();
+                }
+            })
+            .on('leave', function () {
+                // 當離開觸發區域時，重置圖表數據為 0
+                myChart.data.datasets[0].data = Array(finalData.length).fill(0);
+                myChart.update();
+                isAnimating = false;
+            })
+            .addTo(controller);
+
+            // 新增 section5 的觸發條件
+            var sceneSection5 = new ScrollMagic.Scene({
+                triggerElement: "#section5",
+                triggerHook: 0.8, // 當元素的 80% 進入視窗時觸發
+                reverse: true // 允許重複觸發
+            })
+            .on('enter', function () {
+                // 這裡可以添加 section5 進入視窗時的邏輯
+                console.log("section5 進入視窗");
+            })
+            .on('leave', function () {
+                // 這裡可以添加 section5 離開視窗時的邏輯
+                console.log("section5 離開視窗");
+            })
+            .addTo(controller);
+
+            // 新增 section5 的淡入效果
+            var sceneSection5FadeIn = new ScrollMagic.Scene({
+                triggerElement: "#trigger-section",
+                triggerHook: 0,
+                duration: "100%" // 持續整個 section 的高度
+            })
+            .on('progress', function (event) {
+                const section5 = document.getElementById('section5');
+                if (event.progress === 1) {
+                    section5.style.opacity = '1';
+                } else {
+                    section5.style.opacity = '0';
+                }
+            })
+            .addTo(controller);
+
+            function animateChart() {
+                isAnimating = true;
+                var animationDuration = 2000; // 動畫持續時間（毫秒）
+                var frameDuration = 1000 / 60; // 假設 60fps
+                var totalFrames = Math.round(animationDuration / frameDuration);
+                var easeOutQuart = function(t) { return 1 - (--t) * t * t * t; }; // 緩動函數
+                var frame = 0;
+
+                var animateFrame = function() {
+                    var progress = easeOutQuart(frame / totalFrames);
+                    var currentData = finalData.map(value => Math.round(value * progress));
+                    myChart.data.datasets[0].data = currentData;
+                    myChart.update();
+
+                    if (frame < totalFrames) {
+                        frame++;
+                        requestAnimationFrame(animateFrame);
+                    } else {
+                        isAnimating = false;
+                    }
+                };
+
+                requestAnimationFrame(animateFrame);
+            }
+
+            function checkImage(url) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(`圖片加載成功: ${url}`);
+                    img.onerror = () => reject(`圖片加載失敗: ${url}`);
+                    img.src = url;
+                });
+            }
+
+            checkImage('images/mirror_piece.png')
+                .then(message => console.log(message))
+                .catch(error => console.error(error));
+
+            const dots = document.querySelectorAll('.dot-nav .dot');
+            const sections = document.querySelectorAll('.section');
+
+            // 點擊圓點時滾動到對應區域
+            dots.forEach(dot => {
+                dot.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(targetId);
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            // 滾動時更新活動圓點
+            window.addEventListener('scroll', function() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (pageYOffset >= sectionTop - sectionHeight / 3) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                dots.forEach(dot => {
+                    dot.classList.remove('active');
+                    if (dot.getAttribute('data-section') === current) {
+                        dot.classList.add('active');
+                    }
+                });
+            });
+
+            const skipGameButton = document.querySelector('.skip-game');
+            skipGameButton.addEventListener('click', function() {
+                const section2 = document.getElementById('section2');
+                section2.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            function nextQuestion(currentQuestion) {
+                const currentElement = document.getElementById(`question-${currentQuestion}`);
+                const nextElement = document.getElementById(`question-${currentQuestion + 1}`);
+                currentElement.style.display = 'none';
+                if (nextElement) {
+                    nextElement.style.display = 'block';
+                }
+            }
+
+            function calculateScore() {
+                const form = document.getElementById('quiz-form');
+                const formData = new FormData(form);
+                let score = 0;
+
+                for (let entry of formData.entries()) {
+                    score += parseInt(entry[1]);
+                }
+
+                const resultDiv = document.getElementById('result');
+                let resultText = '';
+
+                if (score < 15) {
+                    resultText = '恭喜你沒有容貌焦慮的問題！';
+                } else if (score >= 15 && score <= 20) {
+                    resultText = '你對容貌已經有焦慮的傾向，可能已影響生活，可透過專業協助恢復生活品質。';
+                } else {
+                    resultText = '你極有可能有容貌焦慮的問題，且對生活造成不少影響，建議尋求醫療資源協助。';
+                }
+
+                resultDiv.textContent = `你的總得分是 ${score} 分。${resultText}`;
+            }
+
+            window.nextQuestion = nextQuestion;
+            window.calculateScore = calculateScore;
+        });
+    </script>
+</body>
+</html>
