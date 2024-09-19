@@ -14,29 +14,64 @@
 
     <script>
         function showTitleAndHint() {
-                const heroContent = document.querySelector('.hero-content');
-                const hint = document.querySelector('.scroll-hint');
-                const h1 = heroContent.querySelector('h1');
-                const p = heroContent.querySelector('p');
+            const heroContent = document.querySelector('.hero-content');
+            const hint = document.querySelector('.scroll-hint');
+            const h1 = heroContent.querySelector('h1');
+            const p = heroContent.querySelector('p');
 
-                // 確保 hero-content 顯示
-                heroContent.style.display = 'block'; // 显示内容
-                heroContent.classList.add('fade-in');
+            // 顯示 hero-content
+            heroContent.style.display = 'block';
+            heroContent.classList.add('fade-in');
 
-                // 將 h1 和 p 的透明度設置為 1，並添加淡入效果
-                setTimeout(() => {
-                    h1.style.opacity = '1';  
-                    p.style.opacity = '1';
-                }, 500);  // 500 毫秒後觸發淡入
+            // 將 h1 和 p 的透明度設置為 1，並添加淡入效果
+            setTimeout(() => {
+                h1.style.opacity = '1';  
+                p.style.opacity = '1';
+            }, 1000);  // 1000 毫秒後觸發淡入
 
-                // 延遲顯示提示文字，並添加閃爍效果的 class
-                setTimeout(() => {
-                    hint.style.display = 'block';  
-                    hint.classList.add('fade-in-out');
-                }, 500); // 2秒後顯示提示文字
+            // 延遲顯示提示文字，並添加閃爍效果的 class
+            setTimeout(() => {
+                hint.style.display = 'block';
+                hint.classList.add('fade-in-out');
+            }, 1000); // 1秒後顯示提示文字
+           
+        }
+        function allowManualScroll() {
+            // 確保滾動可用，允許用戶手動滾動
+            document.body.style.overflow = 'auto';  // 設置 body 可以滾動
+            
+            // 淡入顯示內容區域
+            setTimeout(() => {
+                const content = document.querySelector('.content');
+                if (content) {
+                    content.style.opacity = '1';  // 設置內容透明度為可見
+                }
+            }, 500);
         }
 
+        // 禁用頁面垂直滾動，直到遊戲結束
+        document.body.style.overflowY = 'hidden';
+
+        // 當遊戲結束時恢復滾動
+        function enableScroll() {
+            document.body.style.overflowY = 'auto';  // 允許整個頁面滾動
+        }
+
+        // 監聽遊戲結束的訊息
+        window.addEventListener('message', (event) => {
+            if (event.data === 'gameOver') {
+                enableScroll();  // 遊戲結束時允許滾動
+            }
+        });
+
+        // 當在 iframe 上滾動時，將事件傳遞給父頁面
+        iframe.contentWindow.addEventListener('wheel', (event) => {
+            event.preventDefault(); // 禁止 iframe 自己的滾動
+            window.scrollBy(0, event.deltaY); // 傳遞滾動事件到頁面
+        });
+
     </script>
+    
    
     
     <style>
@@ -48,6 +83,7 @@
             padding: 0;
             line-height: 1.6;
             transition: background 0.5s ease-in-out;
+            overflow-y: auto;  /* 確保 body 可以垂直滾動 */
         }
         header {
             background-color: #000000;
@@ -63,12 +99,13 @@
             font-size: 1.2em;
             color: #FFFFFF;
             opacity: 0;
-            animation: fadeInOut 2s ease-in-out infinite;  /* 閃爍效果 */
+            animation: fadeInOut 2s ease-in-out infinite; /* 閃爍效果 */
             display: none;
-            cursor: pointer;
-            z-index: 11;  /* 設置比 hero-content 稍高 z-index */
+            z-index: 1;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            
         }
+
 
         /* 閃爍效果 */
         @keyframes fadeInOut {
@@ -166,12 +203,13 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh; /* 確保高度佔滿視窗 */
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1;  /* 設置比 hero-content 低的層級 */
+            z-index: 1;
         }
+
 
         iframe {
             width: 100%;
@@ -245,16 +283,7 @@
             left: 0;
         }
         
-        .skip-game {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: #FFD700;
-            color: #000000;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+        
         #chart-container {
             width: 80%;
             margin: 50px auto;
@@ -410,8 +439,28 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const gameHint = document.getElementById('game-hint');
-            const gameIframe = document.querySelector('iframe'); // 找到游戏 iframe
-            let hasShownHint = false; // 确保只显示一次提示框
+            const gameIframe = document.querySelector('iframe');
+            let hasShownHint = false;
+            const iframe = document.querySelector('iframe');
+
+            // 當遊戲結束時恢復滾動
+            function enableScroll() {
+                document.body.style.overflowY = 'auto';
+            }
+
+            // 監聽遊戲結束的訊息
+            window.addEventListener('message', (event) => {
+                if (event.data === 'gameOver') {
+                    enableScroll();
+                }
+            });
+
+            // 當在 iframe 上滾動時，將事件傳遞給父頁面
+            iframe.contentWindow.addEventListener('wheel', (event) => {
+                event.preventDefault(); // 禁止 iframe 自己的滾動
+                window.scrollBy(0, event.deltaY); // 傳遞滾動事件到頁面
+            });
+    
 
             // 当游戏加载完成时执行
             gameIframe.onload = function() {
@@ -430,13 +479,15 @@
             };
         });
     </script>
+    
+
 
     <div class="hero">
         <div class="hero-content">
             <h1>打破容貌焦慮的枷鎖</h1>
             <p>從釐清迷思到跳脫焦慮的指南</p>
         </div>
-        <div class="interactive-game">
+        <div class="interactive-game" style="overflow: auto;"> 
             <iframe src="godot-game/mirror-game.html"></iframe> <!-- 插入 Godot 遊戲 -->
         </div>
         <div class="scroll-hint">向下滾動以繼續閱讀</div>
@@ -454,7 +505,7 @@
         </div>
 
         <section class="section" id="section1">
-            <h2 class="section-title">第一章：認��容貌焦慮</h2>
+            <h2 class="section-title">第一章：認容貌焦慮</h2>
             <p>容貌焦慮是一種常見的心理現象，它指的是個人對自己外表的過度關注和擔憂。這種焦慮可能源於社會對美的標準、媒體的影響，或個人經歷等多方面因素。</p>
             <p>在這一章中，我們將深入探討容貌慮的定義、成因，以及它對個人生活和社會關係的影響。通過了解容貌焦慮的本質，我們可以更好地應對這種心理壓力，邁更健康、更自信的生活。</p>
             
@@ -476,7 +527,7 @@
                     <div class="question" id="question-2" style="display:none;">
                         <p>2. 你認為自己的外表怎麼樣？</p>
                         <label><input type="radio" name="q2" value="4"> 非常不好看</label>
-                        <label><input type="radio" name="q2" value="3"> 不好</label>
+                        <label><input type="radio" name="q2" value="3"> 好</label>
                         <label><input type="radio" name="q2" value="2"> 還好</label>
                         <label><input type="radio" name="q2" value="1"> 有點不好看</label>
                         <label><input type="radio" name="q2" value="0"> 完全不覺得難看</label>
@@ -547,7 +598,7 @@
                         <p>9. 外貌對於定義「你是誰」很重要，你認同這句話嗎？</p>
                         <label><input type="radio" name="q9" value="4"> 超級認同</label>
                         <label><input type="radio" name="q9" value="3"> 非常認同</label>
-                        <label><input type="radio" name="q9" value="2"> 中等認同</label>
+                        <label><input type="radio" name="q9" value="2"> 中��認同</label>
                         <label><input type="radio" name="q9" value="1"> 有點認同</label>
                         <label><input type="radio" name="q9" value="0"> 完全不認同</label>
                         <button type="button" onclick="calculateScore()">提交</button>
@@ -560,7 +611,6 @@
 
     <section class="full-screen-section adventure" id="unity-game-section">
         <canvas id="unity-canvas" width="960" height="600"></canvas>
-        <div class="skip-game">跳過遊戲</div>
         <div class="chapter-title">【容貌囚徒】<br>我為什麼不好看？</div>
     </section>
 
@@ -643,64 +693,64 @@
     </div>
 
     <script>
-    function handleScroll() {
-    const triggerSection = document.getElementById('trigger-section');
-    const images = document.querySelectorAll('.image-switch');
-    const sectionTop = triggerSection.getBoundingClientRect().top + window.scrollY;
-    const sectionHeight = triggerSection.offsetHeight;
-    const scrollPosition = window.scrollY;
+        function handleScroll() {
+            const triggerSection = document.getElementById('trigger-section');
+            const images = document.querySelectorAll('.image-switch');
+            const sectionTop = triggerSection.getBoundingClientRect().top + window.scrollY;
+            const sectionHeight = triggerSection.offsetHeight;
+            const scrollPosition = window.scrollY;
 
-    // 定义每张图片显示的滚动触发点
-    const triggerPoints = [
-        sectionTop,                             // 第一张图片显示的开始
-        sectionTop + sectionHeight / 4,         // 第二张图片显示的开始
-        sectionTop + (sectionHeight / 4) * 2,   // 第三张图片显示的开始
-        sectionTop + (sectionHeight / 4) * 3    // 第四张图片显示的开始
-    ];
+            // 定义每张图片显示的滚动触发点
+            const triggerPoints = [
+                sectionTop,                             // 第一张图片显示的开始
+                sectionTop + sectionHeight / 4,         // 第二张图片显示的开始
+                sectionTop + (sectionHeight / 4) * 2,   // 第三张图片显示的开始
+                sectionTop + (sectionHeight / 4) * 3    // 第四张图片显示的开始
+            ];
 
-    images.forEach((img, index) => {
-        if (scrollPosition >= triggerPoints[index] && (index === images.length - 1 || scrollPosition < triggerPoints[index + 1])) {
-            img.style.display = 'block';
-            img.classList.remove('hidden');
-        } else {
-            img.style.display = 'none';
+            images.forEach((img, index) => {
+                if (scrollPosition >= triggerPoints[index] && (index === images.length - 1 || scrollPosition < triggerPoints[index + 1])) {
+                    img.style.display = 'block';
+                    img.classList.remove('hidden');
+                } else {
+                    img.style.display = 'none';
+                }
+            });
+
+            // 处理最后一张图片的淡出效果
+            const lastImage = images[images.length - 1];
+            const fadeOutTrigger = triggerPoints[triggerPoints.length - 1] + sectionHeight / 4;
+
+            if (scrollPosition >= fadeOutTrigger) {
+                lastImage.classList.add('hidden');
+            } else {
+                lastImage.classList.remove('hidden');
+            }
+
+            // 当最后一张图片完全消失时显示文字
+            const textElement = document.getElementById('fade-text');
+            const textTrigger = fadeOutTrigger + sectionHeight / 4;
+
+            if (scrollPosition >= textTrigger) { // 确保图片完全消失后再显示文字
+                textElement.style.display = 'block';
+                textElement.classList.add('fade-in');
+            } else {
+                textElement.style.display = 'none';
+                textElement.classList.remove('fade-in');
+            }
+
+            // 当最后一张图片完全淡出后显示 section5
+            const section5 = document.getElementById('section5');
+            const blankSpaceTrigger = textTrigger + window.innerHeight; // 空白區域的觸發點
+
+            if (scrollPosition >= blankSpaceTrigger) {
+                section5.style.display = 'block';
+            } else {
+                section5.style.display = 'none';
+            }
         }
-    });
 
-    // 处理最后一张图片的淡出效果
-    const lastImage = images[images.length - 1];
-    const fadeOutTrigger = triggerPoints[triggerPoints.length - 1] + sectionHeight / 4;
-
-    if (scrollPosition >= fadeOutTrigger) {
-        lastImage.classList.add('hidden');
-    } else {
-        lastImage.classList.remove('hidden');
-    }
-
-    // 当最后一张图片完全消失时显示文字
-    const textElement = document.getElementById('fade-text');
-    const textTrigger = fadeOutTrigger + sectionHeight / 4;
-
-    if (scrollPosition >= textTrigger) { // 确保图片完全消失后再显示文字
-        textElement.style.display = 'block';
-        textElement.classList.add('fade-in');
-    } else {
-        textElement.style.display = 'none';
-        textElement.classList.remove('fade-in');
-    }
-
-    // 当最后一张图片完全淡出后显示 section5
-    const section5 = document.getElementById('section5');
-    const blankSpaceTrigger = textTrigger + window.innerHeight; // 空白區域的觸發點
-
-    if (scrollPosition >= blankSpaceTrigger) {
-        section5.style.display = 'block';
-    } else {
-        section5.style.display = 'none';
-    }
-}
-
-document.addEventListener('scroll', handleScroll);
+        document.addEventListener('scroll', handleScroll);
 
     </script>
 
@@ -728,28 +778,25 @@ document.addEventListener('scroll', handleScroll);
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM 加載完成，開始初始化導航點');
             const dotNav = document.querySelector('.dot-nav');
+            
             if (dotNav) {
                 console.log('找到導航點元素:', dotNav);
             } else {
                 console.error('未找到導航點元素');
             }
-
-            const content = document.querySelector('.content');
+           
     
-                
 
-            scrollHint.addEventListener('click', () => {
-                scrollToContent();
-            });
-
+            const heroHeight = document.querySelector('.hero').offsetHeight;
+            const content = document.querySelector('.content');
+       
+        
+    
+            // 背景顏色變化根據滾動位置
             window.addEventListener('scroll', function() {
-                const heroHeight = document.querySelector('.hero').offsetHeight;
                 const scrollPosition = window.scrollY;
-
-              
-
-                // 計算滾動比例
                 const scrollRatio = Math.min(scrollPosition / heroHeight, 1);
+                
                 // 計算新的背景顏色
                 const startColor = [140, 128, 105]; // #8C8069
                 const endColor = [243, 230, 204]; // #F3E6CC
@@ -759,23 +806,14 @@ document.addEventListener('scroll', handleScroll);
                 });
                 document.body.style.backgroundColor = `rgb(${newColor.join(',')})`;
             });
+    
 
-            function scrollToContent() {
-                const heroHeight = document.querySelector('.hero').offsetHeight;
-                window.scrollTo({
-                    top: heroHeight,
-                    behavior: 'smooth'
-                });
-                setTimeout(() => {
-                    content.style.opacity = '1';
-                }, 500);
-            }
-
+    
             // 圖表相關代碼
             var ctx = document.getElementById('myChart').getContext('2d');
             var finalData = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]; // 最終數據
             var maxValue = Math.max(...finalData);
-
+    
             var myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -798,13 +836,13 @@ document.addEventListener('scroll', handleScroll);
                     animation: false // 禁用 Chart.js 的內建動畫
                 }
             });
-
+    
             // 創建 ScrollMagic 控制器
             var controller = new ScrollMagic.Controller();
-
+    
             // 動畫狀態
             var isAnimating = false;
-
+    
             // 創建場景
             var scene = new ScrollMagic.Scene({
                 triggerElement: "#chart-container",
@@ -823,7 +861,7 @@ document.addEventListener('scroll', handleScroll);
                 isAnimating = false;
             })
             .addTo(controller);
-
+    
             // 新增 section5 的觸發條件
             var sceneSection5 = new ScrollMagic.Scene({
                 triggerElement: "#section5",
@@ -839,7 +877,7 @@ document.addEventListener('scroll', handleScroll);
                 console.log("section5 離開視窗");
             })
             .addTo(controller);
-
+    
             // 新增 section5 的淡入效果
             var sceneSection5FadeIn = new ScrollMagic.Scene({
                 triggerElement: "#trigger-section",
@@ -855,7 +893,7 @@ document.addEventListener('scroll', handleScroll);
                 }
             })
             .addTo(controller);
-
+    
             function animateChart() {
                 isAnimating = true;
                 var animationDuration = 2000; // 動畫持續時間（毫秒）
@@ -863,13 +901,13 @@ document.addEventListener('scroll', handleScroll);
                 var totalFrames = Math.round(animationDuration / frameDuration);
                 var easeOutQuart = function(t) { return 1 - (--t) * t * t * t; }; // 緩動函數
                 var frame = 0;
-
+    
                 var animateFrame = function() {
                     var progress = easeOutQuart(frame / totalFrames);
                     var currentData = finalData.map(value => Math.round(value * progress));
                     myChart.data.datasets[0].data = currentData;
                     myChart.update();
-
+    
                     if (frame < totalFrames) {
                         frame++;
                         requestAnimationFrame(animateFrame);
@@ -877,10 +915,11 @@ document.addEventListener('scroll', handleScroll);
                         isAnimating = false;
                     }
                 };
-
+    
                 requestAnimationFrame(animateFrame);
             }
-
+    
+            // 確保圖片正確加載
             function checkImage(url) {
                 return new Promise((resolve, reject) => {
                     const img = new Image();
@@ -889,14 +928,14 @@ document.addEventListener('scroll', handleScroll);
                     img.src = url;
                 });
             }
-
+    
             checkImage('images/mirror_piece.png')
                 .then(message => console.log(message))
                 .catch(error => console.error(error));
-
+    
             const dots = document.querySelectorAll('.dot-nav .dot');
             const sections = document.querySelectorAll('.section');
-
+    
             // 點擊圓點時滾動到對應區域
             dots.forEach(dot => {
                 dot.addEventListener('click', function(e) {
@@ -906,7 +945,7 @@ document.addEventListener('scroll', handleScroll);
                     targetSection.scrollIntoView({ behavior: 'smooth' });
                 });
             });
-
+    
             // 滾動時更新活動圓點
             window.addEventListener('scroll', function() {
                 let current = '';
@@ -917,7 +956,7 @@ document.addEventListener('scroll', handleScroll);
                         current = section.getAttribute('id');
                     }
                 });
-
+    
                 dots.forEach(dot => {
                     dot.classList.remove('active');
                     if (dot.getAttribute('data-section') === current) {
@@ -925,13 +964,7 @@ document.addEventListener('scroll', handleScroll);
                     }
                 });
             });
-
-            const skipGameButton = document.querySelector('.skip-game');
-            skipGameButton.addEventListener('click', function() {
-                const section2 = document.getElementById('section2');
-                section2.scrollIntoView({ behavior: 'smooth' });
-            });
-
+    
             function nextQuestion(currentQuestion) {
                 const currentElement = document.getElementById(`question-${currentQuestion}`);
                 const nextElement = document.getElementById(`question-${currentQuestion + 1}`);
@@ -940,33 +973,36 @@ document.addEventListener('scroll', handleScroll);
                     nextElement.style.display = 'block';
                 }
             }
-
+    
             function calculateScore() {
                 const form = document.getElementById('quiz-form');
                 const formData = new FormData(form);
                 let score = 0;
-
+    
                 for (let entry of formData.entries()) {
                     score += parseInt(entry[1]);
                 }
-
+    
                 const resultDiv = document.getElementById('result');
                 let resultText = '';
-
+    
                 if (score < 15) {
                     resultText = '恭喜你沒有容貌焦慮的問題！';
                 } else if (score >= 15 && score <= 20) {
                     resultText = '你對容貌已經有焦慮的傾向，可能已影響生活，可透過專業協助恢復生活品質。';
-                } else {
-                    resultText = '你極有可能有容貌焦慮的問題，且對生活造成不少影響，建議尋求醫療資源協助。';
-                }
-
-                resultDiv.textContent = `你的總得分是 ${score} 分。${resultText}`;
+            } else {
+                resultText = '你極有可能有容貌焦慮的問題，且對生活造成不少影響，建議尋求醫療資源協助。';
             }
 
-            window.nextQuestion = nextQuestion;
-            window.calculateScore = calculateScore;
-        });
-    </script>
+            resultDiv.textContent = `你的總得分是 ${score} 分。${resultText}`;
+        }
+
+        // 監聽導航點的活動狀態更新
+        window.nextQuestion = nextQuestion;
+        window.calculateScore = calculateScore;
+    });
+</script>
+
+    
 </body>
 </html>
