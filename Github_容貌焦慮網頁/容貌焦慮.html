@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>打破容貌焦慮的枷鎖</title>
-    <script src="Build/UnityLoader.js"></script>
+    <script src="unity/Build/ShapeOfMe.loader.js"></script>
     <script>
-        var unityInstance = UnityLoader.instantiate("unity-canvas", "Build/YourBuildName.json");
+        var unityInstance = UnityLoader.instantiate("unity-canvas", "unity/Build/ShapeOfMe.data");
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js"></script>
@@ -72,8 +71,6 @@
 
     </script>
     
-   
-    
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
@@ -83,7 +80,8 @@
             padding: 0;
             line-height: 1.6;
             transition: background 0.5s ease-in-out;
-            overflow-y: auto;  /* 確保 body 可以垂直滾動 */
+ 
+  
         }
         header {
             background-color: #000000;
@@ -101,11 +99,10 @@
             opacity: 0;
             animation: fadeInOut 2s ease-in-out infinite; /* 閃爍效果 */
             display: none;
+            cursor: pointer;
             z-index: 1;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            
         }
-
 
         /* 閃爍效果 */
         @keyframes fadeInOut {
@@ -113,38 +110,12 @@
             50% { opacity: 1; }
         }
 
-        /* 淡入效果 */
+        /* 淡效果 */
         .fade-in {
             opacity: 1;  /* 淡入顯示 */
         }
 
-        .content {
-            max-width: 800px;
-            margin: 20pt auto; /* 預留 20pt 距離 */
-            padding: 40px 20px;
-            opacity: 1; /* 確保內容可見 */
-            transition: opacity 0.5s ease-in-out;
-            position: relative; /* 使子元素的定位相對於此元素 */
-            color: #3E3E40; /* 文字改成指定顏色 */
-        }
-        .content::before {
-            content: '';
-            position: absolute;
-            top: -10pt; /* 預留 10pt 距離 */
-            left: -20pt; /* 左右各 20pt */
-            right: -20pt;
-            bottom: -10pt; /* 預留 10pt 距離 */
-            background-color: rgba(255, 255, 255, 0.9); /* 白色背景，有點透 */
-            border-radius: 10pt; /* 邊角為圓角 */
-            z-index: -1; /* 使背景層在文字層之下 */
-        }
-        .section {
-            margin-bottom: 60px;
-        }
-        .section-title {
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
+
         a {
             color: #FFD700;
             text-decoration: none;
@@ -168,7 +139,13 @@
             flex-direction: column;
             justify-content: space-between; /* 顶部和底部分开 */
             text-align: center;
-            background-color: #000; /* 背景色可以根据需求调整 */
+            transition: transform 1.5s ease, opacity 0.5s ease; /* 添加過渡效果 */
+        }
+
+        .hero.hidden {
+            transform: translateY(-100%); /* 向上平移离开视窗 */
+            opacity: 0; /* 隐藏 */
+            height: 0vh; /* 設置高度為 0 */
         }
 
         .hero-content {
@@ -181,21 +158,25 @@
                 
         .hero h1, .hero p {
             color: #ffffff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             opacity: 0; /* 初始透明度為0 */
             transition: opacity 2s ease-in-out; /* 添加淡入過渡效果 */
             margin: 0; 
             padding: 0; 
             text-align: center; /* 置中 */
         }
+        h2.no-shadow {
+            text-shadow: none;
+        }
+
 
         .hero h1 {
-            font-size:3.5em;
+            font-size: 4em;
             font-weight: 700;
         }
 
         .hero p {
-            font-size: 2em;
+            font-size: 1.5em;
             margin-bottom: 30px;
         }
         .interactive-game {
@@ -209,7 +190,6 @@
             align-items: center;
             z-index: 1;
         }
-
 
         iframe {
             width: 100%;
@@ -249,92 +229,22 @@
             transform: scale(1.2);
         }
         
-        .mirror-pieces {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .mirror-piece {
-            width: 100px;
-            height: 100px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            cursor: move;
-        }
-        .mirror-target {
-            width: 300px;
-            height: 300px;
-            background-image: url('images/mirror_piece.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            margin: 0 auto;
-            position: relative;
-        }
-        .dropped-piece {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-size: contain;
-            background-repeat: no-repeat;
-            top: 0;
-            left: 0;
-        }
-        
-        
-        #chart-container {
-            width: 80%;
-            margin: 50px auto;
-        }
-        .full-screen-section {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            background-size: cover; /* 使圖片填滿整個螢幕 */
-            background-position: center;
-            background-repeat: no-repeat;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .full-screen-section.adventure {
-            background-image: url('images/adventure_game.png'); /* 設置背景圖 */
-        }
-        
-        .full-screen-section.chapter3 {
-            background-image: url('images/chapter3.png'); /* 設置背景圖 */
-        }
-
-        .full-screen-section.chapter4 {
-            background-image: url('images/chapter4.png'); /* 設置背景圖 */
-        }
-
-        .full-screen-section.chapter5 {
-            background-image: url('images/chapter5.png'); /* 設置背景圖 */
-        }
-        .chapter-title {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.5); /* 透底背景 */
-            color: #FFFFFF;
-            padding: 40px; /* 上下左右各增加 20pt */
-            border-radius: 10px;
-            text-align: center;
-            font-size: 2.5em; /* 放大 20pt */
-        }
+    
         #quiz-container {
             background-color: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             max-width: 600px;
             margin: 50px auto;
             color: #3E3E40; /* 設置文字顏色 */
+            
         }
+        #quiz-container h2 {
+            margin-top: 5px; /* 減少 h2 與頂部的距離 */
+            padding-top: 0px; /* 確保 h2 的內部沒有額外的 padding */
+        }
+
         .question {
             margin-bottom: 20px;
         }
@@ -343,40 +253,23 @@
             margin: 5px 0;
         }
         button {
-            background-color: #007bff;
+            background-color: #90AEA1;
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 20px; /* 這裡設置與上方的距離為 20px，根據需求調整數值 */
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #7F9F91;
         }
         #result {
             margin-top: 20px;
             font-size: 18px;
             font-weight: bold;
         }
-        #trigger-section {
-            height: 300vh; /* 使 section 足够高来触发滚动 */
-            position: relative;
-        }
-
-        .image-switch {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 30%; /* 根据需要调整图片大小 */
-            display: none; /* 初始隐藏 */
-            opacity: 1; /* 初始不透明 */
-            transition: opacity 1s ease-out; /* 添加淡出效果 */
-        }
-
-        .hidden {
-            opacity: 0; /* 设置淡出后的透明度 */
-        }
+        
         .fade-in {
             opacity: 0;
             animation: fadeInText 2s forwards;
@@ -388,15 +281,17 @@
         }
 
         .empty-section {
-            height: 100vh; /* 空白區域的高度 */
+            height: 100vh; /* 確保足夠高度，讓滾動觸發效果 */
         }
+
+        
         /* 半透明提示框 */
         .game-hint {
             position: absolute;
-            top: 83%;
+            bottom: 5%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 10%; /* 占据 80% 的屏幕宽度 */
+            width: 13%; /* 占据 80% 的屏幕宽度 */
             padding: 17px;
             background-color: rgba(0, 0, 0, 0.7); /* 半透明黑色背景 */
             color: #ffffff;
@@ -417,31 +312,172 @@
             font-weight: bold;
         }
 
+    
+        
+        .content {
+            max-width: 660px;
+            margin: 20pt auto;
+            padding: 10px 40px;
+            opacity: 0;  /* 默認透明 */
+            position: relative;
+            color: #3E3E40;
+            transition: opacity 1.5s ease, transform 1.5s ease;  
+            overflow: hidden;
+            height: 100%;
+            font-size: 1.1em;
+        }
+
+
+        .chapter-title {
+            font-family: 'NewTegomin', serif; /* 使用新字體 */
+            top: 50px;
+            font-size: 1.8em;
+            z-index: 10;
+            color: white;
+            transition: position 0.5s ease-in-out; /* 平滑过渡效果 */
+            text-align: right; /* 向右靠齊 */
+            margin-right: -10px; /* 增加右邊距離 */
+        }
+
+
+
+        .chapter-title.sticky {
+            position: sticky;
+            top: 80px;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .content.sticky {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+        }
+
+        .chapter-title.hide {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+
+
+        .chapter-section.hidden {
+            transform: translateY(-100%); /* 平移到視窗外 */
+            opacity: 0; /* 淡出 */
+            visibility: hidden;
+        }
+
+        .chapter-section {
+            transition: opacity 0.5s ease, visibility 0.5s ease; /* 添加過渡效果 */
+            opacity: 1;
+            transform: translateY(0);
+            min-height: 100vh; /* 最小高度設置為視窗高度，但允許內容超出時自動增高 */
+            padding: 80px 30px 30px 30px; /* 增加頂部距離，保留左右和底部 */
+            box-sizing: border-box; /* 確保 padding 被包含在元素的高度中 */
+        }
+        
+        /* 這是針對 Unity 遊戲的專屬 iframe 樣式 */
+        .unity-iframe {
+            width: 960px;           /* 設置 Unity 遊戲的具體寬度 */
+            height: 540px;          /* 設置 Unity 遊戲的具體高度 */
+            margin: 0 auto;         /* 讓 Unity 遊戲水平居中 */
+            display: block;         /* 設置 iframe 為塊級元素，避免繼承行內元素樣式 */
+            border: none;           /* 無邊框 */
+            pointer-events: auto;
+            margin-bottom: 100px; /* 增加距離，使遊戲和下文有更多間隔 */
+            opacity: 0;
+            transition: opacity 2s ease-in-out; /* 設置淡入過渡效果 */
+            border-radius: 20px; /* 設置圓角，20px 可以根據需要調整 */
+            overflow: hidden; /* 確保圓角內容不溢出 */
+        }
+        .unity-iframe.visible {
+            opacity: 1; /* 使其可見 */
+        }
+        
+        /* 這是針對切換圖片 遊戲的專屬 iframe 樣式 */
+        #trigger-section {
+            height: 100vh; /* 切換圖片速度*/
+            position: relative;
+        }
+
+        .image-switch {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            
+            display: none;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+
+        .hidden {
+            opacity: 0;
+        }
+
+        #progress-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #progress-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        #progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #progress-bar-fill {
+            height: 100%;
+            background-color: #90AEA1;
+            width: 0;
+            transition: width 0.5s ease;
+        }
+        h2 {
+            font-size: 24px;
+            margin-top: 70px; /* 保持原有樣式 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* 添加陰影效果 */
+        }
+        #chart-container {
+            background-color: rgba(255, 255, 255, 0.8); /* 透白背景 */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px; 
+            width: 150%;
+            color: #6C6C6C; /* 設置文字顏色 */
+            margin: 0 auto 10px auto; /* 調整底部的 margin 值來讓圖表和文字更接近 */
+        }
+
+
 
     </style>
     
-
-
 </head>
 <body>
     <nav class="dot-nav">
         <ul>
-            <li><a href="#game-section" class="dot" data-section="game-section"></a></li>
-            <li><a href="#section1" class="dot" data-section="section1"></a></li>
-            <li><a href="#section2" class="dot" data-section="section2"></a></li>
-            <li><a href="#section3" class="dot" data-section="section3"></a></li>
+            <li><a href="#chapter1" class="dot" data-section="chapter1"></a></li>
+            <li><a href="#chapter2" class="dot" data-section="chapter2"></a></li>
+            <li><a href="#chapter3" class="dot" data-section="chapter3"></a></li>
+            <li><a href="#chapter4" class="dot" data-section="chapter4"></a></li>
         </ul>
     </nav>
     
-    <div class="game-hint" id="game-hint">
-        <p>拖曳碎片來拼合鏡子！</p>
-    </div>
+    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const gameHint = document.getElementById('game-hint');
+            const gameHintParagraph = gameHint.querySelector('p'); // 取得 game-hint 內的 <p> 元素
             const gameIframe = document.querySelector('iframe');
             let hasShownHint = false;
-            const iframe = document.querySelector('iframe');
+            const iframes = document.querySelectorAll('iframe, .unity-iframe');
 
             // 當遊戲結束時恢復滾動
             function enableScroll() {
@@ -456,9 +492,11 @@
             });
 
             // 當在 iframe 上滾動時，將事件傳遞給父頁面
-            iframe.contentWindow.addEventListener('wheel', (event) => {
-                event.preventDefault(); // 禁止 iframe 自己的滾動
-                window.scrollBy(0, event.deltaY); // 傳遞滾動事件到頁面
+            iframes.forEach(iframe => {
+                iframe.contentWindow.addEventListener('wheel', (event) => {
+                    event.preventDefault(); // 禁止 iframe 自己的滾動
+                    window.scrollBy(0, event.deltaY); // 傳遞滾動事件到父頁面
+                });
             });
     
 
@@ -468,10 +506,12 @@
                     // 游戏加载完成，显示提示框
                     setTimeout(function() {
                         gameHint.style.opacity = '1'; // 显示提示框
+                        gameHintParagraph.style.opacity = '1'; // 显示提示框
 
                         // 3秒后隐藏提示框
                         setTimeout(function() {
                             gameHint.style.opacity = '0'; // 隐藏提示框
+                            gameHintParagraph.style.opacity = '0'; // 隐藏提示框
                         }, 3000); // 3秒后自动隐藏
                     }, 1000); // 延迟 1 秒后显示提示框，确保游戏画面完全加载
                     hasShownHint = true; // 标记提示框已显示
@@ -480,9 +520,8 @@
         });
     </script>
     
-
-
     <div class="hero">
+    
         <div class="hero-content">
             <h1>打破容貌焦慮的枷鎖</h1>
             <p>從釐清迷思到跳脫焦慮的指南</p>
@@ -491,35 +530,120 @@
             <iframe src="godot-game/mirror-game.html"></iframe> <!-- 插入 Godot 遊戲 -->
         </div>
         <div class="scroll-hint">向下滾動以繼續閱讀</div>
+        <div class="game-hint" id="game-hint">
+            <p>拖曳碎片來拼合鏡子！</p>
+        </div>
     </div>
-    
 
-  
+    <!-- 第一章 -->
+    <div class="chapter-section" id="chapter1">
+        <div class="chapter-title">
+            【解構迷思】<br>
+            為何許多人有容貌焦慮？
+        </div><!-- Sticky 標題 -->
 
-    <div class="content">
-        <h2>第一章：容貌焦慮的現狀</h2>
-        <p><!-- 原有的段落內容 --></p>
+
+        <div class="content">
+        <h2 style="margin-top: 20px;"><strong style="color: #94B2C6;">鏡中映出的，是誰的面孔？</strong></h2>
+        <p>在自我展示成為常態的時代，我們或許都曾在某一刻，定格在那片冷冽的反光中，端詳自己的面孔，試圖尋找些什麼，也許是美，也許是缺陷。然而，我們真正尋找的，是滿足社會期待的形象，還是某種讓自己安心的確認：「我看起來還不錯吧？」</p>
+        <p>但在那追尋的過程中，有些人開始迷失在鏡像、影像與現實之間，容貌焦慮便從這樣的縫隙中悄然滋生，如同籠罩心靈的陰霾，逐漸吞噬自我認同感。</p>
+        <p><strong style="color: #A6C6B9;">容貌焦慮，是當我們無法從鏡子裡看見真實的自己，而只能看到他人與自我期待的樣貌時，心底所泛起的恐懼。</strong></p>
+        <p>猶如一面破碎的鏡子，將裂痕映射在臉上，讓每一個不完美的角落變得無比尖銳，時不時扎進心房。</p>
+
+        <h2><strong style="color: #94B2C6;">現實與虛擬的割裂</strong></h2>
+
+        <p>「在維多利亞時期的英國，一位名為格雷的年輕男子，五官如同精心打磨的玉石般完美無瑕。然而，他卻嫉妒著自己的肖像畫能永保青春，因此不惜以靈魂為代價，讓畫像替他承受歲月與罪惡的痕跡。」說起容貌焦慮的經驗與體悟，長期生活在海外的戒賭諮商師 Oscar Wilde ，興致勃勃地分享由作家奧斯卡·王爾德於19世紀創作的《道林格雷的畫像》。</p>
+        <p>在故事中，主角格雷看似享有青春永駐的特權，然而，隨著他的品行墮落，畫像也逐漸腐朽，猶如一面映照內心罪惡的鏡子。最終，格雷再也無法忍受畫中醜陋模樣的他，拿起刀刺向了畫，卻也同時刺穿了自己的靈魂...</p>
+        <p>如今，在社群媒體精心塑造完美形象的人們，同樣試圖將現實中的瑕疵掩蓋起來，造成現實與想像的割裂。正如 Oscar Wilde 所言：「我會羨慕那些，能做自己的、毫不在意別人看法的人，他們似乎活出了那種，『反正我就是這樣』的人生態度。」</p>
+        <p>然而，現實中大多數人無法擺脫對外界評價的焦慮。社群媒體上的形象成為一種「畫像」，承載了人們對完美的追求，抑或是如同一面鏡子，反映出內心深處對美與不完美的矛盾。當現實與虛擬形象之間的差距越來越大，人們的焦慮感也隨之增長，從而陷入困境——表面上看似完美無瑕，但內心卻逐漸崩潰。</p>
+
+        <h2><strong style="color: #94B2C6;">社群媒體是罪魁禍首嗎？</strong></h2>
+        <p>近年來，大眾媒體和社群媒體上的「容貌羞辱」現象屢見不鮮，無論是新聞報導還是網絡討論，總是圍繞著藝人或網紅的外貌變化大做文章。一會兒譏笑藝人「老化」、「皮膚鬆垮」，一會兒又批評她們「整形過度」、「塑膠臉」，甚至喜歡看她們「卸妝前後」的對比。這些評論彷彿在傳達：變老和變醜是一種罪過。</p>
+        <p>從 Instagram 的濾鏡自拍，到 TikTok 的變裝影片，那些精心打理、經過濾鏡和修圖處理的影像，不斷向年輕族群傳遞一個訊息：美是可以被「修正」和「達成」的。不但模糊了外貌的真實與虛擬之間的界限，讓人對自己的外貌有了更高的期望，也因此讓他們更容易陷入焦慮。</p>
+        <p>這股對外貌的焦慮感也蔓延到年齡更小的群體。在 Tiktok 上，風靡一時的「翻轉」特效掀起了「左右臉對稱挑戰」，透過將影像水平翻轉來確認臉部的對稱性，讓人一窺「他人眼中的自己」。使用該特效所製作的影片已接近 1000 萬則，總瀏覽量更突破  230  億次。為了與同儕擁有共通的話題，國小生的多莉也嘗試了這項挑戰，但她這才意識到，自己在他人眼中與鏡中的模樣竟截然不同。「我覺得自己嘴巴看起來歪歪的，突然覺得自己很醜...」，她失落地說著，開始無法接受自己的模樣。
+        </p>
+        <p>多莉提到，雖然她經常上網尋找改善的方法，但效果有限。「那些影片就說不要側睡，但我感覺沒有什麼很明顯的效果」，她表示，未來可能會考慮戴牙套來矯正嘴部歪斜的問題，即使沒有人認為她需要改變。
+        </p>
+        <p>心理師林佳瑾也發現，部分病患的焦慮原因來自於社群媒體小紅書。「小紅書上的照片是一種極端的呈現，」林佳瑾指出。「這並不是真實生活中的樣子。生活中的樣子，應該是腰間坐下時可能會有兩三層脂肪，雙腿之間也未必有縫隙。」她說，曾有病患因為做不到小紅書流行的「反手抱腰」挑戰而感到焦慮，甚至因此懷疑自己是否太胖。
+        </p>
+        <p>林佳瑾直言，這樣的內容過於不真實，且有害於心理健康。社群媒體上的內容看似娛樂性豐富，實際上不僅窄化審美標準，還會透過一些技術手段，強化使用者的自我評價。對於尚處於自我認知發展階段的青少年來說，便容易引發對外貌的過度關注和焦慮。
+        </p>
+        <p>實際上，社群媒體所引起的容貌焦慮，背後是由多重且複雜的因素共構而成，涵蓋社會文化、家庭背景、同儕影響以及個人自我認知。身心科醫師黃偉俐指出：「在強調外貌、醫美產業壟斷的社會，容貌焦慮最終可能被轉化為對財務狀況或社會地位的焦慮。」由此可見，社群媒體雖放大了外貌競爭的壓力，但深層原因還在於社會期待、消費文化與個人價值衡量方式的錯綜交織，促成了容貌焦慮的蔓延。
+        </p>
+        <p><strong style="color: #A1C1B3;">容貌焦慮不是個人的掙扎，而是社會結構和文化價值觀共同作用的結果。
+        </strong></p>
+        <p>在一個將外貌與自我價值劃上等號的文化中，女性常常不得不迎合這些被塑造成完美的標準，彷彿唯有達到這些標準，才能獲得認可與尊重。在這種情況下，除了天生麗質，經濟能力成為了追求理想外貌的門檻。
+        </p>
+        <p>如同黃偉俐所說，「貧窮限制了想像，這句話同樣適用於對美貌的追求。」在社群媒體上，網路名人展示的不僅是精緻的容貌，還包括奢華的生活方式，從Dior、Louis Vuitton等名貴精品到海外豪華渡假飯店，這些物質成為了外貌背後的隱藏資本。容貌焦慮也因此演變為炫富行為，個人經濟能力與外貌競爭緊密相連，進一步強化了文化與經濟因素對容貌焦慮的影響，最終呈現為「名牌包焦慮症」等形式。
+        </p>
+        <p>因此，社群媒體並非容貌焦慮的唯一或主要原因，它就像 instagram 的放大鏡（內容推薦區域）一般，讓我們更容易觀察到容貌焦慮的普遍性與片面樣貌。換句話說，社群媒體上的按讚、分享與演算法機制，或許加劇了某些審美標準的傳播，但真正導致容貌焦慮的，是更深層的社會和個人心理結構。
+        </p>
+
+        <h2><strong style="color: #94B2C6;">好看的人為何要容貌焦慮？容貌焦慮就是愛美嗎？</strong></h2>
+        <p>在社群媒體的討論中，許多人感到疑惑：為何那些擁有外貌優勢的人仍會深陷容貌焦慮？身心科醫師張哲嘉解釋，健身網紅、媒體藝人和芭蕾舞者等屬於「高風險族群」，他們通常更容易受困於容貌焦慮，因為他們的表現或職業成功與外貌有著直接的關聯。他說，「這些人經常在社群媒體上看到外貌出眾的同行，就可能互相比較。因為長得比較好看的人，通常會比較有好的表現。」
+        </p>
+        <p>YouTuber 美麗妄娜便曾經拍攝影片抒發容貌焦慮之苦，她形容這種狀態為「內心的瑕疵放大了外表的瑕疵」。然而，觀眾的反應卻大相徑庭，許多人認為她只是對自己要求過高。這不禁引人深思：這些苛刻的要求標準究竟從何而來？更令人費解的是，網路上肆意批評他人外貌的人也比比皆是，凸顯了人們對外貌的態度存在著雙重標準。
+        </p>
+
+        <p><strong style="color: #A1C1B3; font-style: italic;">「如果我沒有，你也不可以有」</strong></p>
+        <P>在容貌焦慮的討論中，「討人厭」的安海瑟薇經常被用來解讀人們的心理狀態。她因《麻雀變公主》和《穿著Prada的惡魔》等經典作品而廣受矚目，儘管擁有成功的職業生涯和亮麗的螢幕形象，卻時常被指責為虛假做作。這顯示出「螃蟹效應」的心理現象：當一隻螃蟹試圖逃出桶子時，其他螃蟹會將它拉回，確保全體無法脫逃。安海瑟薇就如同那隻想要脫穎而出的螃蟹，而部分群體則通過貶低她來維持心理上的「公平」。
+        </P>
+        <P>也就是說，當人們看到公眾人物的完美形象時，往往會將對自身的焦慮投射到他們身上，尤其是認為無法達到自己對完美的期許時，焦慮感時常會轉向外界，藉由貶低他人來暫時緩解自身的不安。這正是現代社會對外貌標準過度嚴苛的根源之一，在社群媒體的推波助瀾下，無論是藝人的精緻形象，還是網紅的日常分享，都容易引發比較與焦慮的情緒。
+        </P>
+        <P>同時，當公眾人物意識到自己成為視線焦點，也容易不自覺地內化外界的目光，如同一面潛在的鏡子，時刻反映著他人的期待與審視，而造成過分關注外貌的每一個細節。</P>
+        <p><strong style="color: #A1C1B3;">容貌焦慮更多源於主觀的感知，並非外界所見的客觀事實。</strong></p>
+        <p>擁有「性感教主」稱號的網路名人雪碧（方祺媛），經常在社群上分享整形的心路歷程。由於工作環境經常接觸外型亮麗的女性，使她感到強烈的比較壓力，在 10 年內斥資 800 萬進行多次整型手術，儘管如此，她依然受到容貌焦慮纏身。她解釋，整形的路就是這樣，「你只要走上做鼻子、做額頭、做眼睛、做下巴的路，只要整形的人都懂我的感覺，你就是一輩子要修修補補。」
+        </p>
+        <p>另一方面，容貌焦慮並不僅限於渴望完美的人。許多自認外貌平庸或不佳的人，不僅避免在社群媒體上展示自己的照片，甚至在日常生活中也會將自己隱藏起來，例如以口罩或寬鬆的穿搭，遮掩住不夠自信的容顏與身材，以防受到外界的審視與評價。</p>
+        <p>無論選擇曝光還是隱藏，容貌焦慮如同一張無形的網，將人們緊緊束縛在對「完美」的無止境追逐與對「不完美」的無盡逃避之間，令人陷入了一種難以自拔的焦慮迴圈。有些人精雕細琢，不斷地在社會標準的壓力下改變自己；另一部分人則躲在面具後，害怕面對真實的自我與社會的目光。最終，因為對社會標準的屈服和對自我價值的不確定，他們都無法逃脫外界的審視和自我評判。
+        </p>
+
+        <h2><strong style="color: #94B2C6;">覺得自己不好看就算容貌焦慮嗎？</strong></h2>
+        <p>2023 年年初，隨著疫情減緩，口罩政策也逐步鬆綁，「容貌焦慮」一詞迅速成為熱議的話題。根據QSearch 輿情分析平台的數據顯示，Facebook 上關於容貌焦慮的討論聲量，在同年 2 月宣布口罩政策放寬後迅速飆升，顯示對外貌擔憂的人數急速成長。</p>
 
         <div id="chart-container">
             <canvas id="myChart"></canvas>
-        </div>
-
-        <section class="section" id="section1">
-            <h2 class="section-title">第一章：認容貌焦慮</h2>
-            <p>容貌焦慮是一種常見的心理現象，它指的是個人對自己外表的過度關注和擔憂。這種焦慮可能源於社會對美的標準、媒體的影響，或個人經歷等多方面因素。</p>
-            <p>在這一章中，我們將深入探討容貌慮的定義、成因，以及它對個人生活和社會關係的影響。通過了解容貌焦慮的本質，我們可以更好地應對這種心理壓力，邁更健康、更自信的生活。</p>
+            <p style="text-align: center; font-size: 12px; color: #A9A9A9;">
+                隨著更多人面對重返「全臉曝光」的現實，容貌焦慮便成為眾人共同的話題。<br>
+                資料來源：《QSearch》游孟欣
+            </p>
             
+        </div>
+        
+
+        <p style="margin-top: 30px;">在長時間強制佩戴口罩的日子裡，人們習慣了只露出眉眼的樣貌。當口罩得以摘下後，不少人對於毫無遮掩地面對同事、朋友或是陌生人，感到渾身不自在，也更加有意識地審視自己的外貌。值得注意的是，在意或不滿外貌不一定就是容貌焦慮，而是當這種不滿足感持續影響到日常生活，並且可能引發長期的心理困擾，才是容貌焦慮的界定標準。
+        </p>
+        <p style="margin-top: 50px;"><em style="color: #A1C1B3;">「我連在宿舍睡覺都要戴口罩...，吃飯也要盡量外帶」<br>
+            「有次外出時口罩的線斷了，我覺得很焦慮，很想躲起來」
+        </em></p>
+        <p>從國中起就習慣戴著口罩的大學生張同學，對容貌的焦慮已經嚴重到影響生活。疫情期間，所有人都必須戴著口罩的生活，對他而言是一種解脫，因為他認為自己不再是「異類」，不再有人好奇他為什麼長期戴著口罩。然而，隨著「容貌焦慮」一詞在社群媒體上頻繁出現，張同學對此現象感到不解。
+        </p>
+        </p>
+        <p>「某些網紅經常修圖，然後說自己也有容貌焦慮，我覺得這樣很矛盾，這只會讓我們這些真正有困擾的人感到更加痛苦。」他質疑，這些網紅是否真正理解容貌焦慮的本質，還是只是利用這個話題來博取關注。「他們說自己焦慮，但其實生活並沒有因此受到嚴重影響，這和我們這些真正被外貌困擾的人是不同的。」
+        </p>
+        <p>如同另一位大學生 U 同學所說，容貌焦慮的核心在於嚴重否定自身的外貌，而不同於追求精緻外表的常見行為。同樣長年戴口罩應對社交場合的她指出，有些人在社群媒體上發佈照片時，搭配上容貌焦慮的文案，實際上只是跟隨流行，這讓她對該詞的濫用感到不滿。
+        </p>
+        <p>U 同學擔心，隨著容貌焦慮的廣泛討論，社會的審美標準會更加窄化，並可能誤導更多人認為關注外貌的行為是病態的，因而產生錯誤的自我認知。她也提到，這種氛圍可能對韓星、美妝網紅等公眾人物造成負面影響，因為他們的形象經常被誤解為加劇容貌焦慮的原因。然而 U 同學認為，個人應該有能力分辨並管理自己的情緒，而不是單純依賴社群媒體或他人的照片來決定自己的外貌是否值得焦慮。
+        </p>
+  
             <!-- 心理測驗內容 -->
             <div id="quiz-container">
-                <h2>怎麼知道自己是否患有容貌焦慮症？</h2>
+                <h2 class="no-shadow">你有容貌焦慮嗎？來測試看看吧！</h2>
+                 <!-- 答題進度條 -->
+                <div id="progress-container">
+                    <p id="progress-text">第 1 / 9 題</p>
+                    <div id="progress-bar">
+                        <div id="progress-bar-fill"></div>
+                    </div>
+                </div>
                 <form id="quiz-form">
                     <!-- 題目 1 -->
                     <div class="question" id="question-1">
-                        <p>1. 你一天會刻意檢查自己的外貌幾次？（不小心瞥到鏡子看一下那種不算）</p>
+                        <p>1. 你一天會刻意檢查自己的外貌幾次？</p>
                         <label><input type="radio" name="q1" value="4"> 40次</label>
                         <label><input type="radio" name="q1" value="3"> 20次</label>
                         <label><input type="radio" name="q1" value="2"> 10次</label>
-                        <label><input type="radio" name="q1" value="1"> 5</label>
+                        <label><input type="radio" name="q1" value="1"> 5次</label>
                         <label><input type="radio" name="q1" value="0"> 從不</label>
                         <button type="button" onclick="nextQuestion(1)">下一題</button>
                     </div>
@@ -559,7 +683,7 @@
                         <label><input type="radio" name="q5" value="4"> 極度頻繁</label>
                         <label><input type="radio" name="q5" value="3"> 時常</label>
                         <label><input type="radio" name="q5" value="2"> 半數時間</label>
-                        <label><input type="radio" name="q5" value="1"> 有時</label>
+                        <label><input type="radio" name="q5" value="1"> 時</label>
                         <label><input type="radio" name="q5" value="0"> 完全不會</label>
                         <button type="button" onclick="nextQuestion(5)">下一題</button>
                     </div>
@@ -598,7 +722,7 @@
                         <p>9. 外貌對於定義「你是誰」很重要，你認同這句話嗎？</p>
                         <label><input type="radio" name="q9" value="4"> 超級認同</label>
                         <label><input type="radio" name="q9" value="3"> 非常認同</label>
-                        <label><input type="radio" name="q9" value="2"> 中��認同</label>
+                        <label><input type="radio" name="q9" value="2"> 中認同</label>
                         <label><input type="radio" name="q9" value="1"> 有點認同</label>
                         <label><input type="radio" name="q9" value="0"> 完全不認同</label>
                         <button type="button" onclick="calculateScore()">提交</button>
@@ -606,223 +730,540 @@
                 </form>
                 <div id="result"></div>
             </div>
-        </section>
-    </div>
-
-    <section class="full-screen-section adventure" id="unity-game-section">
-        <canvas id="unity-canvas" width="960" height="600"></canvas>
-        <div class="chapter-title">【容貌囚徒】<br>我為什麼不好看？</div>
-    </section>
-
-    <div class="content">
-        <section class="section" id="section2">
-            <h2 class="section-title">第二章：【容貌囚徒】我為什麼不好看？</h2>
-            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
-            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
-            <ul>
-                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷。</li>
-                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
-                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
-                <li>尋求支持：與朋友和家人分享你的感，尋求他們支持和理解。</li>
-            </ul>
-        </section>
-
+        </div>
         
     </div>
 
-    <section class="full-screen-section chapter3" id="chapter3-section">
-        <div class="chapter-title">【世代差異】<br>不同年齡層的容貌焦慮觀察</div>
-    </section>
-
-    <div class="content">
-        <section class="section" id="section3">
-            <h2 class="section-title">第三章：社群媒體與容貌焦慮</h2>
-            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
-            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
-            <ul>
-                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷</li>
-                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
-                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
-                <li>尋求支持：與朋友和家人分享你的感受，尋求他們的支持和理解。</li>
-            </ul>
-        </section>
-    </div>
-
-    <section class="full-screen-section chapter4" id="chapter4-section">
-        <div class="chapter-title">【全屏背景圖】<br>章節間的過渡</div>
-    </section>
        
-    <div class="content">
-        <section class="section" id="section4">
-            <h2 class="section-title">第四章：社群媒體與容貌焦慮</h2>
-            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
-            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
-            <ul>
-                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷</li>
-                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
-                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
-                <li>尋求支持：與朋友和家人分享你的感受，尋求他們的支持和理解。</li>
-            </ul>
-        </section>
 
+    <!-- 第二章 -->
+    <div class="chapter-section" id="chapter2">
+        <div class="chapter-title">【容貌囚徒】<br>我為什麼不好看？</div> <!-- Sticky 標題 -->
+        <div class="content">
+            <h2 style="margin-top: 20px;"><strong style="color: #94B2C6;">愛美，是天性的使然，還是社會的枷鎖？</strong></h2>
+            <p>追求美，得以讓我們在社會中與他人互動、吸引，並成為自我表達的一種方式，這無疑是人類的天性。然而，隨著時代發展，現代社會不斷強調「美」的重要，讓我們陷入無止境的比較與自我懷疑。正如作家 Virginia Woolf 所說：「殺死幻影比殺死現實更難。」美貌，似乎正是那個幻影般的野獸，成為了無形的枷鎖，操縱著我們對自我的認知。
+            </p>
+            <p>當每個人都在追求一個永遠難以達成的理想時，容貌焦慮便無聲無息地融入了我們的生活。以下是一場文字冒險遊戲，邀請你進入容貌焦慮者的內心世界。透過劇情選擇與挑戰，親身體驗他們的心理掙扎，理解容貌焦慮如何在不知不覺中影響我們的生活與自我認知。
+            </p>
+            <br>
+            <br>
+            <br>
+        </div>    
+         <!-- 在這裡插入 Unity 遊戲 -->
+        <iframe class="unity-iframe" src="unity/index.html"></iframe>
+        <!-- 插入一個空的 div 增加距離 -->
+        <div class="spacer" style="height: 50px;"></div>
+
+       
+        <div class="content">
+            <h2 style="margin-top: 20px;"><strong style="color: #94B2C6;">不經意的話語，揮之不去的傷痕</strong></h2>
+            <p>容貌焦慮，經常潛藏在我們最熟悉的環境。生活圈那些看似無心的評論，卻總在不經意間，深深刻劃在心底，留下難以抹去的印記。
+            </p>
+            <p>曾經體重達 159 公斤的樂樂，憑藉驚人的意志力，如今已減重至 53 公斤。體重僅剩原先三分之一的她特別強調，希望以化名出現在報導上，「我不想讓其他家人擔心，也從沒跟他們提起這些事，我已經長大了，」。樂樂過去的經歷，讓她逐漸封閉自我，難以與家人、朋友抒發內心的痛苦。
+            </p>
+            <p>從小至今，樂樂因為體型遭遇過無數次的嘲笑與指責。事實上，最早、最深刻的傷害就是來自她的家庭。「我爸爸常常會在我胖的時候，說不願意開車載我，因為覺得載不動我。每次出門我都得坐在車後座的正中間，稍微動一下就會被罵，」她難過地回憶。「我從小就因為遺傳問題很胖，我的父親甚至在外人面前羞辱我，」這些經歷在她心中刻下了深深的創傷，讓她對自己的體型感到自卑。</p>
+            連走在路上時，鄰居也會對她指指點點，用台語說：「那個誰誰家的那頭豬，又出來了。」同時，學校的同學也對她的體型百般嘲諷，她深深地記得那些話語：「你是死胖子啦，我不想要跟你一組，你那麼胖，又跑不動，」她回憶起學生時期，因為沒有其他同學願意跟她一組，她總是被分配和老師一起參加活動。「不管是什麼活動，我永遠都是沒有人要的，老師也是一副不想要跟我組隊的樣子，就是很難受，真的很難受。」
+            <p>這些隨口而出的話語，充滿了對她體型的羞辱。更令人感到不堪的是，同學們不僅會言語攻擊，還會將吃不完的食物直接丟給她，無視她的意願，甚至連老師也有同樣的行為。對樂樂來說，這些不尊重的舉動，不僅僅是針對她的體型，更是對她人格的否定。
+            </p>
+            <p>「我本來就是不浪費食物的人，但當我吃下那些食物時，卻反而成為他們嘲笑的對象。」樂樂的語氣中帶著些許憤怒與不甘，同學們將她當作「豬」來形容，認為她是個隨時可以餵食的對象，這些不經意的行為，逐漸形成集體的輕視，讓她感到自尊受損。
+            </p>
+            <p>「以前的我很魁武，因為當時我是田徑校隊，練鉛球的，手臂和肩膀都很粗壯。」儘管她為學校拿下多次比賽名次，又或者是在歌唱比賽中取得冠軍，但她的身材仍是評價的焦點。她挫折地表示，即便取得了成就，也無法改變同學對她的看法，「同學們還是會嘲笑我，叫我『那隻豬』。」她的努力依然不被重視。
+            </p>
+            <p>樂樂也曾經嘗試過各種方法來減肥，包括針灸、吃中藥、斷食等，但這些方法對她的身體造成了很大的負擔。不過，樂樂並未就此自暴自棄，經過心理治療和諮商，她逐漸找到了突破自我的方法。她說：「一位心理醫生曾對我說，人生只有一次，為什麼不給自己一個機會，讓那些曾經嘲笑你的人看到你的蛻變？」這句話深深打動了她，也成為她減重和改變自我心態的關鍵。
+            </p>
+            <p>經過不到一年的時間，樂樂就減去超過 100 公斤的體重。然而，儘管體重變輕了，過去的經驗仍然讓她的內心沈重不已。每當她搭乘捷運或公車時，還是會暗自心想「這個位置我可以坐嗎？會不會擋到別人？」甚至會讓座給旁邊的人，並向疑惑的路人連忙稱道「我太胖了」。
+            </p>
+            <p>每當回過神來，樂樂又會開始懷疑自己，為何總是無法控制地說出這種話，她無奈地說，「因為我就是過去這樣子，有負面的陰影，也有被傷過嘛。」這也導致她至今總是戴著口罩，「我甚至連回家都經常不把口罩拿下來，因為我覺得這是武裝自己的一種方式，」樂樂解釋道。她認為，戴上口罩可以掩蓋她的真實面貌，讓她不再受到評價和指指點點。
+            </p>
+            
+            <p><strong style="color: #A1C1B3; font-style: italic;">「幸福的人用童年治癒一生，不幸的人用一生治癒童年」</strong></p>
+            <p>樂樂的情況，正如心理學家阿爾弗雷德·阿德勒（Alfred Adler）的名言，她說：「我知道自己已經改變了外在，但內心深處的陰影仍然存在，需要時間去消化。」過去的創傷，讓她在生活的每一個角落裡，都時時與自我抗爭。
+            </p>
+            <p>樂樂她明白，外表的改變或許可以短暫地帶來自信，但真正的自我接納，仍需要面對那些隱藏在心底的傷痕。諷刺的是，當她瘦身後，過去那些因為她體型而對她不友善的人，如今紛紛露出驚訝的表情，對她釋出以往沒有的友善和讚嘆。
+            </p>
+            <p>這種轉變讓她非常反感，「我本來就是正常的，為什麼我胖的時候不是這樣，反而是我瘦了，你才這樣對我？」她說，這些態度轉變讓她感到「很噁心」，也不願再與那些人互動。
+            </p>
+            <p>即便人們開始對她表現出尊重和禮貌，她卻無法忽視這種變化的背後，藏著難以忘懷的傷害。尤其是面對熟悉的親人，樂樂更是小心翼翼，保持著防備心。「瘦下來的是我給自己的一個肯定，而不是要成為茶餘飯後的話題。」她說。
+            </p>
+            <p>雖然陰影尚未褪去，樂樂仍大方地分享 Facebook 的照片，「我之前是159公斤，現在是53公斤，差距真的很大，」她重複地說著。「大家看到這些照片時，通常都會瞠目結舌，不敢相信我曾經胖成這樣。」面對這些疑問或「肯定」，樂樂直言，「對，我曾經就是這麼胖過」。
+            </p>
+            <p>「這些照片證明我真的走過來了，」樂樂說道，語氣中帶著自信與驕傲。她透過這些照片，重新審視自己的蛻變歷程，並以此為動力，繼續追尋自我價值。
+            </p>
+
+            <h2><strong style="color: #94B2C6;">他人塑造的自己</strong></h2>
+            <p>原先在科技公司擔任工程師的小黑，因為遇上詐騙事件，為了存錢重整生活，而轉行到「按摩店」（俗稱風俗店、半套店）工作。儘管這些經歷充滿波折，她在談到過去時，依然掛著開朗的笑容，溫柔語氣中，帶著一絲自嘲。那些困難沒有擊垮她，反而顯得她更加堅韌。</p>
+            <p>小黑的容貌焦慮，源自於國、高中時期，受到校園環境的壓力影響。「同學中長得比較醜或比較胖的，常常成為霸凌對象。我自己雖然沒有被霸凌，但總覺得自己被歸類為『普妹』，...，我一開始會有焦慮也是因為很怕被霸凌。」出於害怕遭受霸凌的心理，讓她深信，人們會理所當然地因長相而有差別待遇。
+            </p>
+            <p>「那時候，我會不自覺地去比較，特別在意腿型和骨骼，拼命運動，想說我要跟她們腿一樣細，要看得到手的關節，」小黑如此對瘦的執著，除了來自周圍同學的影響外，也受到流行文化的渲染，她提到，尤其是當時日本漫畫的美感以及當紅女星所展示的「小鳥腿」形象，讓她認為「病態瘦才是好看的」。
+            </p>
+            <p>小黑回憶起那段時光，她坦言當時並沒有「病識感」，也就是沒有意識到問題的嚴重性，然而現在回想起來，她覺得自己的狀態已經達到病態的程度。「那時候我完全不敢照鏡子，」小黑說道。
+            </p>
+            <p>這種焦慮感改變了她的個性，「我會盡量少說話，避免與人接觸」，她補充，「如果全部都是女生的環境，反而很自在，但是只要有一個男生出現，就要安分守己，」因為在這種場合，她常常會有一種「被男性凝視」的心理，覺得自己是被評價的對象，這讓她變得格外壓抑。
+            </p>
+            <p>相似地，戒賭諮商師 Oscar Wilde 的容貌焦慮，也源於年少時的經歷。他回憶說，在學生時期，因為自己的鼻子大，常常被同學當成「丑角」取笑。他回憶說：「那時候班上有個混血兒同學，他的鼻子很挺，我的鼻子大又不夠立體，這種對比讓我更自卑。」他坦言，很羨慕那些擁有西方血統的人，因為他們的五官更加立體深邃，拍照總是看起來更有魅力。</p>
+            <p>在這段時間裡，他對自己的鼻子愈發在意，在冬天時，他習慣戴著可以遮住臉的圍巾或口罩，藉此掩蓋不滿意的地方。這種迴避行為讓他逐漸養成了避免露臉的習慣，也讓他變得不喜歡拍照，在無法拒絕合照的場合時，總是選擇躲在角落。
+            </p>
+            <p>這讓 Oscar Wilde 從小便有了整形的念頭，希望自己的鼻子能像西方人一樣挺拔，他說：「其實我曾經想過要整形，但家裡不認可，也沒這個錢，所以就盡可能的把它遮起來。」，他更強調，「那時候很想逃避，並不是為了變得好看，而是希望不再被嘲笑。」
+            </p>
+            <p>談論到嚮往的樣貌時，Oscar Wilde 的話語尤為深刻：「我羨慕那些可以不在乎別人怎麼看的人」，這樣的感慨道出了容貌焦慮者內心深處的糾結。無論外界的標準如何變動，最難跨越的，往往是我們對自己的評價。
+            </p>
+
+            <h2><strong style="color: #94B2C6;">不自信的心魔</strong></h2>
+            <p>對口罩十分仰賴的張同學，與小黑和 Oscar Wilde 受到環境壓力的情況不同，他原本就對自己的外貌非常苛刻，甚至認為自己的照片「見不得人」，他將這種情感比作戴口罩的行為，都是為了隱藏不想讓人看到的「缺陷」。</p>
+            <p>在國中時期，張同學曾經被同學評論長得像鄭捷，一名犯下嚴重刑案的罪犯。這個比喻讓張同學深受打擊，甚至使他一度不敢看鄭捷的照片，擔心自己真的長得與他相似。「有兩個人都講出一樣的話，我就開始想，別人看我是不是會覺得像在看殺人犯的感覺？」張同學說。
+            </p>
+            <p>當他後來偶然看到鄭捷的照片時，他特別注意到了對方的眼神，認為那種「死魚眼」的面相似乎真的和自己有些相似。他也提到，「朋友們會偶爾說我戴口罩比較好看，這句話雖然可能沒有惡意，但我還是會覺得不太舒服。」他人的評價讓他更加確信，自己的外貌確實有問題。
+            </p>
+            <p>不過他表示，社群媒體是塑造他極高審美標準的主要因素，他會追蹤欣賞的韓國、西洋藝人，也因此強化了他對自己的要求，這也是讓他開始長時間戴口罩的原因。張同學明確指出，流行文化導致他的審美觀窄化，這讓他時常感到自己無法達到這些標準而感到焦慮。他說，「我對自己的標準太高，沒有辦法接受自己不是那樣子。」</p>
+            <p>他描述了自己會收藏一些網路上的照片，特別是他認為好看的五官部位，如鼻子或眼睛，並將這些特徵拼貼到自己的照片上，試圖想像，如果自己也有這樣的外貌會是什麼樣子。「我會把那些鼻子或眼睛畫在自己的照片上，看看自己如果長那樣會不會好看些。」這樣的想法之下，他開始考慮以醫美的方式改善外貌。
+            </p>
+            <p>張同學明白，社群媒體上的圖片多數經過修飾，但他仍無法停止比較。「有時候你知道那些照片是修過的，但你還是會覺得自己不夠好。」事實上，他曾向心輔中心和身心科求助相關問題，諮商師建議他嘗試：不要去跟別人比較。然而，張同學無奈地說，「大家應該都知道這件事，但它不是想做就能做到的。」他認為，這種建議雖然有道理，但在現實生活中實踐起來卻並不容易。
+            </p>
+            <p>對他來說，尋求醫美是能達到自己理想標準的一種方式。「如果我能達到我的標準，那至少我會努力去實現它。如果即便嘗試了，還是無法達成，那我也許會因此釋懷一些。」他回憶起高中時期，對於外表的關注並不多，甚至連自己的尺碼都不清楚。但隨著時間推移，他開始在一些細節上努力改變自己，他相信在能掌控的地方盡力，便是改善自我焦慮的途徑。
+            </p>
+            <p>容貌焦慮的枷鎖，往往來自家人、同儕、媒體，或是社會文化的審美標準，操縱著人們的自我認知與行為。不過，無論如何定義「美」，真正困住我們的，是內心對於「我為什麼不好看」這個問題的無盡追問。
+            </p>
+
+        </div>
+    </div>
+    
+
+
+    <!-- 第三章 -->
+    <div class="chapter-section" id="chapter3">
+        <div class="chapter-title">【世代變遷】<br>容貌焦慮的轉變</div> <!-- Sticky 標題 -->
+        <div class="content">
+            <h2 style="margin-top: 20px;"><strong style="color: #94B2C6;">青春期：不穩定的自我認同</strong></h2>
+            <p>在充滿變動與探索的青春期，青少年開始透過外界的眼光來確立自身的價值，尤其將容貌視為核心焦點。由於自我認同尚未健全，容易受到媒體、同儕以及家庭的影響。其中，又比其他年齡層更容易受到社群媒體的內容牽動。
+            </p>
+            <p>根據兒福聯盟於 2024 年公布的《台灣兒少的社群時代容貌焦慮》調查顯示，超過 70% 的國高中生對外貌感到不滿，近 60% 的兒少因此改變穿搭、保養，甚至嘗試減重以符合心中的理想形象。值得注意的是，超過 45% 的學生曾修圖或不敢上傳照片，顯示社群媒體對兒少外貌自我認知的扭曲影響。
+            </p>
+            <p>該調查也顯示，38.8% 的兒少曾因網路美照產生自卑感，更有 13.7% 的學生曾考慮整形。其中，女性及 Tiktok、instagram 使用者的容貌焦慮程度尤為嚴重，顯示社群平台和同儕壓力是形成這些心理問題的主要因素。
+            </p>
+            <p>晴是一位女高中生，熟悉於使用社群媒體，尤其特別關注美妝KOL。某天，她無意間看到一個關於「黃金比例」的測試，透過比對手指是否能將鼻尖、嘴唇和下巴連接成一條線來判斷臉部是否符合「標準」。
+            </p>
+            <p>她提到，小紅書也有許多分析評比藝人的「三庭五眼」，明確提出比例好壞的評判標準。「這些影片一開始都說，這是為了讓你更好看，後來看了就覺得讓人更焦慮了，那些藝人明明很好看了啊。」她苦笑著說。
+            </p>
+            <p>不僅如此，她還從一位年僅14歲的美妝網紅口中，首次聽聞「鼻基底凹陷」的概念。「我以前不覺得鼻子那裡有問題，但看了影片後，突然覺得自己看起來怪怪的。」這些不曾注意的部位，頓時變得讓她無法忽視。
+            </p>
+            <p>晴透露，她每天會有意識地檢查自己的外貌超過 40 次。雖然這樣的行為，並沒有顯著影響到她的學習或導致遲到，但在看到身邊的同學打扮得更加亮眼時，這樣的差距總會讓她自我否定，從而開始思考自己是否應該也要多花心思在外貌上。
+            </p>
+            <p>實際上，同學們並未對她的外貌提出直接的批評，而是晴格外在意來自家人的評價。「因為他們最了解我，也看我最多次，」她解釋道。特別是她的母親，偶爾會隨口說些關於外貌的話，「她有時會說我的眼皮看起來怎麼那麼腫，」雖然並非出於惡意，但這些話讓晴對自己的眼部更加在意。「從國中開始，我就覺得自己的眼神有些怪怪的，」她坦言道，這份不安從那時便逐漸形成。
+            </p>
+            <p>「有時候我會跟我媽抱怨一下，」她說道，但每次談到這些問題時，她的母親總是顯得不耐煩，讓她感到這些話題不值得深入探討。「她只會覺得我很煩，」晴無奈地笑了笑，似乎對於家人無法理解自己的焦慮感到無力。
+            </p>
+            <p>在晴的情緒波動中，整形的念頭偶爾會浮現，「有時候會覺得自己眼睛、鼻子長得怪怪的，想說以後長大了就去動一下，」她坦白地說。「我偶爾真的會覺得自己是最醜的，」她表示，經常半夜陷入這樣的負面旋渦之中。
+            </p>
+            <p>然而，這種想法並非持續不斷，晴也意識到自己的感受有時是過於極端的。「大部分時候都是我自己想太多了，」她承認道，雖然她能夠理性地反思自己的焦慮，但自我懷疑依然不時湧現，突顯出她在自我接納與外界影響之間的掙扎。
+            </p>
+
+            <h2><strong style="color: #94B2C6;">離開校園：學生跨入職場的角色轉變</strong></h2>
+            <p>隨著成長與環境的變化，容貌焦慮並未隨著學業的結束而消失。相反地，面對全新的社會期待與專業形象要求，許多人在這個過渡階段中，經歷了不同形式的壓力。一方面，職場環境中的競爭讓個人更在意外貌是否符合專業形象的標準；另一方面，隨著自我認同逐漸建立，部分人也開始學會在這些標準中尋找自己的位置，甚至放下過去焦慮感。</p>
+            <p>先前提到的小黑，原本受到校園同儕的影響而產生容貌焦慮。進入以男性為多數的科技業後，讓她感受到一種新的優勢。「在那種環境裡，女生相對比較吃香，」小黑解釋道，「我以前一直以為自己是外貌中下，但工程師的女生大部分都不會打扮，只要稍微打扮一下就算是中上了。」這種性別比例的不平衡，讓她不再是一個不起眼的「普妹」。</p>
+            <p>小黑形容這種現象為「父權紅利」，她認為，在男性主導的職場中，常常因為她身為女性而獲得更多的包容。她發現，上司對男性職員要求比較嚴格，但對女性職員犯的錯誤常常會被輕鬆帶過，「男生犯錯後就會被嚴厲批評，但我們女生只要撒嬌一下，就沒什麼事。」不過這樣的差別待遇也反映到男女性升遷速度的差異。
+            </p>
+            <p>這段職場經歷讓小黑發現：「原來外貌的標準其實和環境有很大的關係，」也就是說，容貌焦慮的程度也會隨所處環境變化。在她短暫轉往按摩店工作時，她說，「在那裡，客人對外貌的要求其實還好，真正的壓力來自經紀人，他們會利用小姐們的容貌焦慮來控制她們，讓她們更聽話，甚至願意接受更大的尺度工作。」
+            </p>
+            <p>她形容，按摩店的經紀人會以「PUA」的手段，不斷強調外貌的重要性，讓女同事們感到自我價值感低下，而打破自己的底線。這種經濟層面的壓力和心理操縱，讓小黑對男性的態度變得極為負面。雖然她自己沒受到這樣的操縱，但也對這種手法十分敏感，因為她過去的詐騙經歷便是使用類似的手段。</p>
+            <p>原先，小黑曾經因為雙腿的線條不夠理想而煩惱，不過在韓流興起後，「蜜大腿」成為主流，讓她不再執著於「小鳥腿」。她也提到，自己曾經對整形持有偏見，認為這是「不認命」的行為，但如今她對此看法變得更為開放。「如果未來有能力，我會考慮整形，這不是為了取悅別人，而是為了讓自己更開心、更自信。」
+            </p>
+            <p>從小黑的經歷可以了解，容貌焦慮的本質，是由複雜的社會環境、流行文化和性別權力結構共同作用。當她進入一個不再將外貌視為唯一價值的環境時，她能夠逐步建立自信，並開始學會與過去的焦慮對抗。
+            </p>
+            <p>然而，不同職場環境和文化，對每個人的外貌壓力也有不同形式的影響。劉小姐是一位手術室的護理師，她認為進入職場後，容貌焦慮明顯變得更加嚴重。「在學生時期，頂多就是上課畫個淡妝，還沒有那麼在意外貌，」她回憶說道。
+            </p>
+            <p>現在，她的同事中有一半以上會定期進行醫美療程，皮膚狀態變得越來越好，這讓她開始感到羨慕。她說，「他們定期去做醫美，而我還在觀望，讓我覺得自己和她們相比，膚質真的差很多，」除了同事之外，上班的環境也讓她想做醫美的念頭越來越強烈。「有時候我們在手術室裡接觸到做醫美的病人，看到效果後也會心動，」劉小姐解釋說，再加上醫院提供的員工福利，讓她更容易接觸這些項目。
+            </p>
+            <p>不過，醫美風險的了解讓她猶豫不決，「這是一個坑，一旦開始可能就停不下來，而且有風險，像是注射不當可能會有後遺症。」劉小姐苦惱地說。在與同事的互動中，她無法避免自我比較，她說，「漂亮的同事在工作中似乎更受歡迎，容易獲得更多資源，比如飯局、社交場合等，」這番話語，似乎再次驗證了小黑的經歷，在這個社會中，突出的外貌能夠帶來許多好處。
+            </p>
+            <p>同樣煩惱是否該進行醫美的小潘，她是一名行銷業務人員。為了維持職場人脈和獲取專業形象靈感，她頻繁使用社群媒體，尤其是關注穿搭和化妝的影片。「作為業務，我應該要看起來專業一點，」小潘表示。這些社群內容確實幫助她提升外在，但她無法避免與那些成功人士進行比較。她無奈地表示，每次去談生意時，客戶總是把她當成還在校的實習生，這種感覺讓她心中不禁掠過一絲酸楚，讓她不禁懷疑，自己的能力是否因為外貌而遭到質疑。
+            </p>
+            <p>「在與客戶見面或參加公司大型活動時，我會感到特別焦慮，」小潘坦言，即便是拍照也不敢掉以輕心。她指出，網紅和醫美診所經常宣傳一些不切實際的外貌標準，讓人覺得自己不夠好，甚至讓人覺得需要透過整形或購買昂貴的化妝品來改變自己。對此現象，小潘表示理解，「大家都希望展示自己最好的一面，」她說，這種行為在職場女性中尤其普遍。
+            </p>
+            <p>如同小潘奮力在職業要求與個人之間尋找平衡，蔡明潔身為補習班的國文老師，同樣受到職業形象的限制。她的穿著被規範在教職人員應該保守的框架內，她秀出手腕上的翡翠手鐲，笑著說「這是我們國文老師的標配嘛，」
+            </p>
+            <p>不過，蔡明潔也透露，這種規範並非在所有老師中一視同仁。「我有聽說，現在年輕一輩的國文老師，會穿得比較性感，比如中空裝。」她表示，當學生告訴她時，她起初不敢相信，「我當時還跟他們說不太可能，因為我們這個行業對露膚的衣著其實非常要求。」
+            </p>
+            <p>「補習班嘛，說白了，就是經營個人魅力。有些年輕老師，尤其是男學生較多的班級，穿得稍微辣一點，其實也沒什麼問題。」她補充道，「我聽說她們會穿細肩帶和短褲，這還勉強在可接受範圍內。」她的話語不僅道出了傳統職業形象的壓力，也反映了隨著世代交替，某些規範正悄然改變。</p>
+
+            <h2><strong style="color: #8EAFC6;">人生中場：外貌與年齡的變遷</strong></h2>
+            <p>談及容貌焦慮，許多研究資料與報導往往集中於青少年群體，尤其是在社群媒體盛行氛圍下，年輕人受到的影響最容易觀察。然而，醫美行業卻敏銳地捕捉到中年族群對於「凍齡」和延緩衰老的渴望。</p>
+            <p>以鳳凰電波為例，廣告以「與時間逆行」為標語，從網路到街頭、公車廣告牌隨處可見。醫美診所甚至以「40歲，活得像少女」、「年過40大齡剩女!?你若有以下情況要注意！」等語句吸引目光，試圖喚起中年女性對容貌的擔憂。</p>
+            <p>這類療程專門針對皮膚鬆弛、皺紋及肌膚緊緻度的改善，目標群體明顯鎖定那些事業與家庭已經逐漸穩定的中年消費者。儘管他們在生活上看似取得了一定的成就，卻開始面臨不可避免的生理老化問題，特別是外貌上逐漸出現的歲月痕跡。
+            </p>
+            <p>然而，當廣告宣揚「活得像少女」這種不現實的美麗標準時，無異就是將衰老視為一種過錯，要求女性在任何年齡都要維持年輕的外表，也加深了容貌與價值的綁定。此外，中年族群在面對容貌焦慮時，與年輕人也有著不同的挑戰，他們多半背負著多年累積的社會壓力，不僅要應對職場要求，還要平衡家庭責任。</p>
+            <p>Annie，是一名會計師，同時也是兩個孩子的母親。「懷孕生小孩之後，我肚子上就留下妊娠紋，每次看到都覺得不舒服，畢竟回不去了啊，...，我還會叫女兒要從小開始擦乳液保養，不然會跟我一樣。」她輕輕嘆了口氣，聲音中透著些許無奈。「有時候，老公還會拿這件事開玩笑，讓我更加難受。」那些難以抹去的紋路，像是一道道傷痕，不僅刻在她的皮膚上，也深深烙印在她的心底。
+            </p>
+            <p>Annie 每次與朋友聚會，總會不自覺地轉向一個話題——醫美。「有時候跟朋友吃飯，我們會聊一些醫美療程，誰做了什麼，效果怎麼樣。」她說，這樣的討論成為了她們彼此分享和建議的機會，甚至帶有些許競爭意味。「朋友跟我說，她最近打了什麼電波的，整個臉看起來都緊緻了不少，我看她的效果還不錯，也想去試試看。」
+            </p>
+            <p>對她們來說，醫美似乎真的成為了與時間逆行的秘訣。「只要你願意花錢，就能讓自己看起來年輕十歲。」她半開玩笑地說道，語氣中透露著現實的無奈。然而，對於自己肚子上的妊娠紋，Annie 暫時沒有打算採取醫美手段。她解釋說，「其實大部分場合都看不到那些紋路，除非是穿泳裝什麼的。而且做那種手術很貴、又要修復期，之後還可能留下明顯的疤，我是覺得有點不值得啦。」現實的考量讓她不得不說服自己接受，儘管心裡仍有些不甘。
+            </p>
+            <p>隨後，她提到了朋友的經歷，「她的老公在外面有女人，她就很傻，為了挽救婚姻，還去做私密處緊實的手術，最後還不是離婚了。」Annie的語氣中帶著些許惋惜，她很清楚這並不是醫美能夠解決的問題。
+            </p>
+            <p>這樣的情況並不是個案。先前提及的小黑，也研究過整形外科的醫病關係，她指出，「會對整形上癮的通常是貴婦，因為他們很怕自己的老公被小三拐走。」許多女性害怕丈夫會因為自己年老色衰而另尋新歡，她們大多認為，只要通過手術改變外貌，就能一同改變愛情、改變人生。
+            </p>
+            <p>小黑從醫生的分享中了解到，嚴重的容貌焦慮者即使在整容後，依然對自己感到不滿，甚至可能引發法律糾紛。有時即便手術沒問題，這些患者卻無法接受婚姻破裂，會轉而控告醫生手術失敗。
+            </p>
+            <p>「她們以為改變外貌就能改變人生，但當手術結束後，生活並沒有如願改善，反而使她們更加挫折。」小黑認為，這些人的容貌焦慮背後，其實更多反映出她們對愛情與生活缺乏掌控感，而整形手術，僅僅是她們試圖找回控制感的途徑，然而卻常常以失敗告終。
+            </p>
+
+            <h2><strong style="color: #94B2C6;">容貌焦慮，隨歲月流轉</strong></h2>
+            <p>在人生的不同階段，煩惱會隨之改變。同樣地，年輕時對外貌的焦慮，隨著成長也會有不同的視角。曾因鼻子被嘲笑的 Oscar Wilde，如今已放下對外表的執著，語氣中帶著一絲釋然。他回憶道：「隨著年紀增長，特別是出國後，看到更多的人和事，你會發現，容貌的問題其實微不足道。」他感慨道，很多不符合主流審美的人也過得很好，這讓他意識到，外貌並不是一切。</p>
+            <p>Oscar Wilde 提到，如今社會對外貌的討論越來越激烈時，他已經不會受到太大的影響，因為他早已過了「在乎別人怎麼看」的階段。然而，他承認，假如他再年輕 20 歲，生活在如今社群媒體盛行的時代，可能會有不一樣的感受。「以前我們沒有這些技術，所以我們只能接受自己的樣子」他說，現在大家可以通過修圖輕鬆改變外貌，但也可能造成現實和虛擬形象的割裂，讓人迷失在其中。他不諱言說道，「說難聽一點，我覺得這是自欺欺人的行為」。
+            </p>
+            <p>Oscar Wilde 認為，隨著科技進步，人們對外貌的焦慮與對認同的渴求只是換了一種形式來呈現。談到社群媒體上精修的照片，他表示理解：「有些人可能只是在尋求外界的認同，特別是在外貌上。」他表示，這樣的行為背後，反映了人們在當今社會中對外貌的依賴和對自我價值感的追求。
+            </p>
+            <p>最後，Oscar Wilde 淡然地表示，外貌是天生的，並非個人能掌控的部分。「雖然你無法選擇自己的外貌，但你可以決定如何呈現自己。」這番話強調了後天自我認同的重要性，他認為，真正的自信來自內在的平衡與自我認同，而不是外在的修飾。</p>
+
+
+
+        </div>
     </div>
 
     <section id="trigger-section" style="text-align: center;">
-        <img src="images/test1.png" class="image-switch" id="image1" style="width: 30%; display: none; margin: 0 auto;">
-        <img src="images/test2.png" class="image-switch" id="image2" style="width: 30%; display: none; margin: 0 auto;">
-        <img src="images/test3.png" class="image-switch" id="image3" style="width: 30%; display: none; margin: 0 auto;">
-        <img src="images/test4.png" class="image-switch" id="image4" style="width: 30%; display: none; margin: 0 auto;">
-        <div class="empty-section"></div>
+        <img src="images/test1.png" class="image-switch" id="image1" style="width: 40%; display: none; margin: 0 auto;">
+        <img src="images/test2.png" class="image-switch" id="image2" style="width: 40%; display: none; margin: 0 auto;">
+        <img src="images/test3.png" class="image-switch" id="image3" style="width: 40%; display: none; margin: 0 auto;">
+        <img src="images/test4.png" class="image-switch" id="image4" style="width: 40%; display: none; margin: 0 auto;">
+        
     </section>
+    <!-- 新增的空白區域，確保足夠高度來觸發滾動效果 -->
+    <section class="empty-section" style="height: 80vh;"></section>
 
-    <!-- 新增的空白區域 -->
-    <section class="empty-section" style="height: 250vh;"></section>
+    <!-- 第四章 -->
+     <div class="chapter-section" id="chapter4">
+        <div class="chapter-title">【掙脫枷鎖】<br>容貌焦慮的解方 </div> <!-- Sticky 標題 -->
+        <div class="content">
+            <h2 style="margin-top: 20px;"><strong style="color: #6689A1;">社群媒體角色的重新定義</strong></h2>
+            <p>面對社群媒體帶來的種種負面影響，兒福聯盟提出了「數位排毒」的建議，呼籲年輕人減少使用社群媒體，以緩解容貌焦慮。這類建議在網路討論中也屢見不鮮，不少人認為「少看小紅書、不要修圖」即可解決容貌焦慮問題。
+            </p>
+            <p>然而，身心科醫師張哲嘉指出，這種觀點過於簡單化，忽略了容貌焦慮的複雜性，也缺乏對當事人的同理心。他解釋，許多人之所以格外關注外貌，往往與生活中的挫折或過去的自信缺失有關，而非單純因為社群媒體或修圖習慣。他強調：「有些人打扮得漂亮，是為了提升自信，即使他們不看社群媒體，也可能因為生活中的不順遂讓他們更加關注外貌。」
+            </p>
+            <p>張哲嘉進一步指出，治療焦慮的關鍵在於減少逃避行為，無論是社交焦慮還是懼高症，避免逃避才是治療的核心。因此，單純建議人們少看小紅書或減少關注外表，並不能真正解決問題。他解釋道：「像要求主播不上妝就上鏡，這種建議並不現實。對於某些人來說，化妝已經成為日常生活的一部分，並且有助於提升自信。」</p>
+            <p>此外，社群媒體的影響也不全然負面，反而為許多人提供了展示自我的管道和學習新知的機會。國小生多莉認為，雖然有時會因為網紅的動態而感到自我否定，但她也表示，社群媒體讓她學會如何打扮自己，她說，「我會想跟他們一樣，讓自己變得更好。」大學生張同學也認為，儘管社群媒體在推崇單一審美標準，但只要選擇合適的內容，仍能成為自我提升的工具。</p>
+            <p>U 同學則是有意識地避開那些過度經營的帳號，僅專注於學習性質的內容，如化妝技巧和服裝搭配等。她表示，這些內容對她來說既實用又正面，並不會讓她感到焦慮。此舉呈現一種批判性使用社群媒體的態度，懂得篩選有益的資訊，並與不切實際的審美標準保持距離。</p>
+            <p>對樂樂來說，社群媒體更提供了一定的心理支持。她毫不避諱地將自己的身材變化分享在Facebook上，這對她來說不僅僅是紀錄，而是一種自我證明。「那些曾經嘲笑我的人，現在看到我的變化會驚訝不已，我變得讓他們無法置信。」樂樂自信地說道。她的故事使社群媒體成為展現個人成長與堅韌的舞台，而非追求完美的無盡深淵。</p>
+            <p>除了能夠展示自己的蛻變，社群媒體有時也能帶給樂樂歸屬感。她解釋：「社群上有些內容我會認同，比如那些鼓勵你不要在乎別人的看法，勇敢做自己的話，」這些正面的訊息能幫助她逐漸擺脫內心的陰霾。</p>
+            <p>同時，樂樂也會特別避免接觸負面內容。「我已經盡量讓自己保持在正面的軌道上，如果看了負面的東西，可能會引發不好的念頭，甚至讓我做出傷害自己的行為，」樂樂表示。她透過篩選有益的內容，在社群媒體中找到了正向的支持，並小心地控制與網路的互動。</p>
+            <p>由此可見，如何使用和看待社群媒體，決定了它在生活中的角色。補習班老師蔡明潔觀察到，「社群媒體確實展示了多元的美，但孩子們還是會被身邊的同儕影響，去追隨那些特定的標準。」她透過觀察學生，發現壓力大多來自同儕間的比較，而非社群媒體本身。</p>
+            <p>社群平台的影響力在於使用者如何掌握平衡。能夠設立健康的使用界限、並挑選積極內容的人，通常能從中獲得靈感和心理支持，而不會陷入與他人比較的焦慮之中。相反，過度沉迷於追求完美的人，則容易被平台帶來的壓力壓垮。因此，學會篩選和批判性地看待內容，社群媒體便能成為促進個人成長的工具，而非焦慮的來源。</p>
 
-    <div class="content">
-        <section class="section" id="section5">
-            <h2 class="section-title">內文文字</h2>
-            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
-            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
-            <ul>
-                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷</li>
-                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
-                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
-                <li>尋求支持：與朋友和家人分享你的感受，尋求他們的支持和理解。</li>
-            </ul>
-        </section>
+            <h2><strong style="color: #6689A1;">心理重建：以專業治療擺脫焦慮</strong></h2>
+            <p>解決容貌焦慮需要從多方面著手，包括心理支持、社會認同和個人的調適策略。對於嚴重影響日常生活者，身心科醫師、心理諮商師能夠提供專業的評估和治療，幫助患者了解焦慮來源，制定合適的治療方案，幫助他們逐漸重建自信。</p>
+            <p>如同樂樂聽取心理師的建議，她開始以減重為契機，學習面對過去的陰影。她強調：「我需要一個完全不認識我的人來說服我，幫助我重新看待自己，這樣我才能慢慢改變自己的想法。」減重後的顯著變化，給予她前所未有的自信，也讓她在面對曾經嘲笑過她的人時，不再退縮。雖然，真正讓她重新審視自我的轉折點，仍源自於外貌的改變，但對樂樂而言，外在的蛻變成為她內在力量的來源，賦予她面對過去傷痛的勇氣。</p>
+            <p>心理師林佳瑾分享了一名個案的治療過程，病患是一位 22 歲的女性，她隨著多次整形手術後，卻逐漸覺得自己的原貌更好看，最終陷入崩潰、生活徹底失序，因此前來求診。除了過度整形，她還會極度控制飲食。雖然她身高165公分，但體重卻僅有30公斤，處於極度消瘦的狀態，但她卻覺得自己「剛剛好」或甚至「不夠瘦」。</p>
+            <p>林佳瑾解釋，某些患者的極端行為與強迫症有關，當人們感到生活無法掌控時，常常會將焦慮轉向日常中更可控的事物。「有些人會反覆檢查門窗、拖地、洗澡，甚至要求房間的物品擺放得一絲不苟，因為這是他們唯一能掌控的。」林佳瑾進一步解釋，「他們通過這些小事來釋放焦慮意念，因為現實生活中的失控感無法改變。」</p>
+            <p>林佳瑾強調，唯有讓患者認識到生活本質上就充滿不確定性，並學會接受這種無法完全掌控的現實，才能真正走出焦慮的陰影。「當我們試圖掌控一切時，只會越來越無助。接受生活中的不確定性，才能逐漸走出這種惡性循環。」</p>
+            <p>身心科醫師張哲嘉則分享「認知行為治療」（Cognitive Behavioral Therapy，CBT）的方式，讓患者學會識別和挑戰負面認知，逐步減少對外貌的過度關注。其中，採用「暴露不反應」為指導原則，循序漸進地引導患者面對引發焦慮的情境。例如，從在家素顏開始，逐步過渡到出門不化妝且不依賴口罩遮掩，幫助患者學會在這些情境中保持冷靜，減少逃避行為的發生。</p>
+            <p>治療過程中，張哲嘉強調，患者需要配合一些安撫的方式來減少焦慮反應。例如，可以通過深呼吸、抱娃娃、聽音樂，或專注於自己的優點來平復情緒。此外，治療師的陪伴也很重要，張哲嘉解釋道：「在暴露的過程中，治療師的角色是幫助患者不斷打氣，減少他們失敗感，避免想要再次用遮掩的方式來應對焦慮。」</p>
+            <p>林佳瑾說明，除了透過心理諮商治療容貌焦慮，視情況也會透過身心科醫師開立抗憂鬱症或焦慮症的藥物，穩定病患的情緒。她將身心科的藥物比擬為游泳圈，它可以讓病患暫時不溺水，但也不能一輩子都靠游泳圈生存，因此心理師比較像游泳教練，最終會引導病患用自在的方式學會游泳，靠自己的力量上岸。</p>
+            <p>另外，國外更嘗試以法律手段來應對容貌焦慮。2022年，挪威實施《行銷管制法》，要求媒體廣告中如果修圖改變了身形或皮膚狀況，必須明確標示。這樣的措施，旨在減少消費者對完美外貌的過度追求，進而減少容貌焦慮。林佳瑾認為，這種增加現實感的做法有助於降低人們對外貌的過高期待，並可能減少焦慮的發生。</p>
+            <p>然而，黃偉俐對此持懷疑態度。他指出，歷史已多次證明，試圖抑制人類慾望的努力很難成功。「這個社會上，任何抑制人類慾望的企圖，從來沒有成功過。」他舉例說，鄂圖曼土耳其帝國曾試圖禁止咖啡，因為國王認為人民沉迷於咖啡館閒談，導致社會懈怠。然而，禁令以失敗告終，顯示出單純的法律約束難以改變深層的社會習慣。</p>
+            <p>黃偉俐進一步強調：「這就像試圖在社群媒體上禁止美化內容，最終那些人乾脆去做整形，然後說，『我就是比你美，我有錢去做整形。』」在他看來，這樣的法律最終只會將問題轉化為另一種消費焦慮，無法從根本上解決容貌焦慮的問題。因此，他強調，解決容貌焦慮的關鍵還在於培養獨立思考的能力，幫助個人正視自己的內心需求與慾望。</p>
+
+        
+            <h2><strong style="color: #6689A1;">看見曙光：自我調適與接納</strong></h2>
+            <p>在走出容貌焦慮的過程中，建立穩健的心理支持環境相當重要。有時候，與家人坦誠交流能成為擺脫容貌焦慮的重要轉折點。不過，正如身心科醫師張哲嘉所言，許多青少年不願意向周圍的人坦露受到外貌問題的困擾，而是身體不適、翹課等形式來表達壓力。</p>
+            <p>張哲嘉指出，青少年擔心討論容貌問題會讓他們顯得自戀，因此選擇隱藏這些感受。大學生張同學也透露，他曾有相似的經歷：「大部分的人認為太在意外貌很膚淺，所以我通常只敢和心理師或醫師談這些。」除非是匿名發文，否則他不會在網路上發表相關言論，避免被認出或受到評判。</p>
+            <p>張同學曾經覺得焦慮到難以承受，但當他鼓起勇氣向家人敞開心扉後，他形容這種感覺就像是「把一個秘密講出來」，雖然家人並不完全理解他的煩恼，但至少尊重他的感受，並且給予很多正面鼓勵。對他來說，能夠有一個抒發的出口，讓他感覺到有人可以分擔自己的困擾，焦慮也隨之減緩了。</p>
+            <p>容貌焦慮會隨著環境、社會期待和自我認同的變化而起伏，小黑的經歷便是很好的例子。她在國高中時期，面對不友善的校園環境，曾深受外貌評價的壓力。「當時我不會想透過化妝或整形來融入漂亮女生的範疇，覺得那只會讓我更容易成為霸凌的目標。」她坦言，當時只想低調行事，避免引起注意。</p>
+            <p>隨著時間的推移，小黑逐漸意識到，不需要因為世俗的標準而感到自卑。「長大之後我覺得，會用外貌來決定別人價值的，才是有問題的人。」她一改以往的思維，對整形的看法也發生改變：「以前我會非常排斥整形，因為我覺得如果整形，大家就會給我貼上標籤，覺得我不認命，還想要去改變什麼。」後來她認為，只要整形是為了自己，而不是取悅他人，那這就僅僅是一種個人的選擇。</p>
+            <p>Oscar Wilde的經驗則道出，隨著閱歷增廣與跨文化的接觸，能夠更專注於內在成長，減少對外貌的關注。他分享，出國留學和工作經歷讓他看到了不同的價值觀，這讓他意識到，外貌並不是生活中最重要的事情。</p>
+            <p>除了學習如何調適外，預防往往勝於治療。其中，媒體素養教育扮演著不可忽視的角色。青少年處於自我認知發展的關鍵階段，人際關係的重心從家庭逐漸轉向同儕與網絡，因此更容易受到線上內容的影響。因此，學校應營造多元包容的學習環境，並積極融入媒體素養的課程，透過培養學生的批判性思考能力，幫助他們更理性地看待媒體的影響，建立健康的自我形象。</p>
+            <p>要掙脫容貌焦慮的枷鎖，首先需要正確認識它，而不是將「愛美」或自卑情緒過度病態化。同時，容貌焦慮並不僅是個人的問題，它反映了媒體、家庭和同儕等多重管道帶來的社會文化影響。唯有學會與焦慮共存，不讓它掌控生活，才能真正走向內心的平靜。</p>
+
+
+        </div>
     </div>
 
+
+    
     <script>
+        // 主滾動事件處理器
+        document.addEventListener('scroll', handleScroll);
+    
         function handleScroll() {
+            const scrollPosition = window.scrollY;
+    
+            // 呼叫各功能處理函數
+            handleHeroVisibility(scrollPosition);
+            handleChapterVisibility(scrollPosition);
+            handleImageSwitching(scrollPosition);
+            handleStickyTitles(scrollPosition);
+        }
+    
+        // Hero 消失處理
+        function handleHeroVisibility(scrollPosition) {
+            const hero = document.querySelector('.hero');
+            if (scrollPosition >= window.innerHeight * 0.01) {
+                hero.classList.add('hidden');
+            } else {
+                hero.classList.remove('hidden');
+            }
+        }
+    
+        // 章節顯示邏輯
+        function handleChapterVisibility(scrollPosition) {
+            const chapters = document.querySelectorAll('.chapter-section');
+            const windowHeight = window.innerHeight;
+
+            chapters.forEach(chapter => {
+                const chapterTop = chapter.getBoundingClientRect().top;
+                const content = chapter.querySelector('.content');
+                const title = chapter.querySelector('.chapter-title');
+
+                // 特別處理第二章內文顯示
+                if (chapter.id === 'chapter2') {
+                    const unityIframe = document.querySelector('.unity-iframe');
+                    const unityTop = unityIframe.getBoundingClientRect().top;
+
+                    // 讓第二章標題在 Unity 出現時顯示
+                    if (unityTop < windowHeight * 0.9) {
+                        title.classList.add('sticky');
+                    }
+
+                    // 讓內文稍後才顯示
+                    if (chapterTop < windowHeight * 0.5) {
+                        content.style.opacity = '1';
+                        content.style.transform = 'translateY(0)';
+                    } else {
+                        content.style.opacity = '0';
+                        content.style.transform = 'translateY(50px)';
+                    }
+                } else {
+                    // 其他章節保留原本邏輯
+                    if (chapterTop < windowHeight * 0.1) {
+                        chapter.classList.add('visible');
+                        chapter.style.opacity = '1'; 
+                        chapter.style.transform = 'translateY(0)';
+                    } else {
+                        chapter.classList.remove('visible');
+                        chapter.style.opacity = '0';
+                        chapter.style.transform = 'translateY(50px)';
+                    }
+                }
+            });
+        }
+
+        // Sticky 標題處理邏輯
+        function handleStickyTitles(scrollPosition) {
+            const titles = document.querySelectorAll('.chapter-title');
+            const contents = document.querySelectorAll('.content');
+            const windowHeight = window.innerHeight;
+
+            titles.forEach((title, index) => {
+                const currentContent = contents[index];
+                const sectionTop = currentContent.getBoundingClientRect().top;
+                const sectionBottom = currentContent.getBoundingClientRect().bottom;
+
+                // 特別處理第二章的標題
+                if (title.parentElement.id === 'chapter2') {
+                    const unityIframe = document.querySelector('.unity-iframe');
+                    const unityTop = unityIframe.getBoundingClientRect().top;
+
+                    if (unityTop < windowHeight * 0.9) {
+                        title.classList.add('sticky'); // 當 Unity 顯示時顯示標題
+                    } else {
+                        title.classList.remove('sticky');
+                    }
+                } else {
+                    // 其他章節保留原本邏輯
+                    const isInView = sectionTop < windowHeight && sectionBottom > 0;
+                    title.classList.toggle('sticky', isInView);
+                    currentContent.classList.toggle('sticky', isInView);
+                    title.classList.toggle('hide', !isInView);
+                }
+            });
+        }
+
+        // 圖片切換邏輯
+        function handleImageSwitching(scrollPosition) {
             const triggerSection = document.getElementById('trigger-section');
             const images = document.querySelectorAll('.image-switch');
             const sectionTop = triggerSection.getBoundingClientRect().top + window.scrollY;
             const sectionHeight = triggerSection.offsetHeight;
-            const scrollPosition = window.scrollY;
-
-            // 定义每张图片显示的滚动触发点
+    
+            // 定義每張圖片顯示的滾動觸發點
             const triggerPoints = [
-                sectionTop,                             // 第一张图片显示的开始
-                sectionTop + sectionHeight / 4,         // 第二张图片显示的开始
-                sectionTop + (sectionHeight / 4) * 2,   // 第三张图片显示的开始
-                sectionTop + (sectionHeight / 4) * 3    // 第四张图片显示的开始
+                sectionTop,
+                sectionTop + sectionHeight / 4,
+                sectionTop + (sectionHeight / 4) * 2,
+                sectionTop + (sectionHeight / 4) * 3
             ];
-
+    
+            // 圖片切換顯示邏輯
             images.forEach((img, index) => {
-                if (scrollPosition >= triggerPoints[index] && (index === images.length - 1 || scrollPosition < triggerPoints[index + 1])) {
-                    img.style.display = 'block';
-                    img.classList.remove('hidden');
-                } else {
-                    img.style.display = 'none';
-                }
+                const isVisible = scrollPosition >= triggerPoints[index] && (index === images.length - 1 || scrollPosition < triggerPoints[index + 1]);
+                img.style.display = isVisible ? 'block' : 'none';
             });
-
-            // 处理最后一张图片的淡出效果
+    
+            // 處理最後一張圖片的淡出效果
             const lastImage = images[images.length - 1];
             const fadeOutTrigger = triggerPoints[triggerPoints.length - 1] + sectionHeight / 4;
-
             if (scrollPosition >= fadeOutTrigger) {
                 lastImage.classList.add('hidden');
             } else {
                 lastImage.classList.remove('hidden');
             }
-
-            // 当最后一张图片完全消失时显示文字
-            const textElement = document.getElementById('fade-text');
-            const textTrigger = fadeOutTrigger + sectionHeight / 4;
-
-            if (scrollPosition >= textTrigger) { // 确保图片完全消失后再显示文字
-                textElement.style.display = 'block';
-                textElement.classList.add('fade-in');
-            } else {
-                textElement.style.display = 'none';
-                textElement.classList.remove('fade-in');
-            }
-
-            // 当最后一张图片完全淡出后显示 section5
-            const section5 = document.getElementById('section5');
-            const blankSpaceTrigger = textTrigger + window.innerHeight; // 空白區域的觸發點
-
-            if (scrollPosition >= blankSpaceTrigger) {
-                section5.style.display = 'block';
-            } else {
-                section5.style.display = 'none';
-            }
         }
+        
+        //unity淡入
+        let hasLeftUnitySection = false;
 
-        document.addEventListener('scroll', handleScroll);
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const unityIframe = entry.target;
+                if (entry.isIntersecting) {
+                    if (hasLeftUnitySection) {
+                        unityIframe.style.transition = 'opacity 2s ease-in-out';
+                        unityIframe.style.opacity = '1';
+                        hasLeftUnitySection = false; 
+                    }
+                } else {
+                    unityIframe.style.opacity = '0';
+                    hasLeftUnitySection = true;
+                }
+            });
+        }, { threshold: 0.1 });
+
+        const unityIframe = document.querySelector('.unity-iframe');
+        observer.observe(unityIframe);
+
+
+
+
+
+
+  
 
     </script>
 
-
-    <section class="full-screen-section chapter5" id="chapter5-section">
-        <div class="chapter-title">【打破枷鎖】<br>不同年齡層的容貌焦慮觀察</div>
-    </section>
-
-    <div class="content">
-        <section class="section" id="section6">
-            <h2 class="section-title">第五章：社群媒體與容貌焦慮</h2>
-            <p>在現代社會，社群媒體已成為人們日常生活的一部分。它不僅改變了我們的社交方式，也深刻影響了我們對美的認知和自我形象的評價。</p>
-            <p>本章將探討社群媒體如何加劇容貌焦慮，並提供一些實用的建議，幫助我們在這個數位時代中保持心理健康。</p>
-            <ul>
-                <li>限制社群媒體使用時間：設定每日使用時間限制，避免過度沉迷。</li>
-                <li>選擇積極的內容：關注那些傳遞正能量和真實美的帳號。</li>
-                <li>培養批判性思維：學會辨別和質疑社群媒體上的不真實內容。</li>
-                <li>尋求持：與朋友和家人分享你的感受，尋求他們的支持和理解。</li>
-            </ul>
-        </section>
-
-    </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM 加載完成，開始初始化導航點');
-            const dotNav = document.querySelector('.dot-nav');
-            
-            if (dotNav) {
-                console.log('找到導航點元素:', dotNav);
-            } else {
-                console.error('未找到導航點元素');
-            }
-           
-    
+        function nextQuestion(currentQuestion) {
+            const totalQuestions = 9; // 總題數
+            const currentElement = document.getElementById(`question-${currentQuestion}`);
+            const nextElement = document.getElementById(`question-${currentQuestion + 1}`);
 
-            const heroHeight = document.querySelector('.hero').offsetHeight;
-            const content = document.querySelector('.content');
-       
-        
-    
-            // 背景顏色變化根據滾動位置
+            // 隱藏當前問題，顯示下一個問題
+            currentElement.style.display = 'none';
+            if (nextElement) {
+                nextElement.style.display = 'block';
+            }
+
+            // 更新進度條
+            const progressBarFill = document.getElementById('progress-bar-fill');
+            const progressText = document.getElementById('progress-text');
+            const progressPercent = ((currentQuestion + 1) / totalQuestions) * 100;
+
+            progressBarFill.style.width = `${progressPercent}%`;
+            progressText.textContent = `第 ${currentQuestion + 1} / ${totalQuestions} 題`;
+        }
+
+        function calculateScore() {
+            // 計算得分的程式碼和顯示結果如前
+}
+
+
+
+    </script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDotNavigation();
+            initializeScrollEvents();
+            initializeChart();
+            checkImage('images/mirror_piece.png').then(console.log).catch(console.error);
+            setupQuizForm();
+        });
+
+        function initializeDotNavigation() {
+            const dotNav = document.querySelector('.dot-nav');
+            const dots = document.querySelectorAll('.dot-nav .dot');
+            const titles = document.querySelectorAll('.chapter-section .chapter-title'); // 改為選擇所有 .chapter-title
+
+            // 點擊圓點滾動到對應區域
+            dots.forEach(dot => {
+                dot.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(targetId);
+                    const headerOffset = 20;
+                    const topPosition = targetSection.getBoundingClientRect().top + window.scrollY - headerOffset;
+                    window.scrollTo({
+                        top: topPosition,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // 使用 IntersectionObserver 來觀察 chapter-title 的可見性
+            const observerOptions = {
+                root: null, // null 表示檢測可視區域
+                threshold: 0.5 // 當 chapter-title 50% 可見時觸發
+            };
+
+            let activeSectionId = null; // 用於追踪當前活動的 section
+
+            const observer = new IntersectionObserver(function(entries) {
+                let visibleEntries = entries.filter(entry => entry.isIntersecting); // 只處理可見的章節
+                if (visibleEntries.length > 0) {
+                    // 找到最接近視口頂部的章節
+                    let closestEntry = visibleEntries.reduce((closest, entry) => {
+                        return entry.boundingClientRect.top < closest.boundingClientRect.top ? entry : closest;
+                    });
+
+                    const sectionId = closestEntry.target.closest('.chapter-section').getAttribute('id');
+
+                    // 只在 ID 改變時更新 active 狀態
+                    if (sectionId !== activeSectionId) {
+                        activeSectionId = sectionId;
+
+                        // 移除所有圓點的 active 狀態
+                        dots.forEach(dot => dot.classList.remove('active'));
+
+                        // 為當前對應的圓點加上 active
+                        const correspondingDot = document.querySelector(`.dot[data-section="${sectionId}"]`);
+                        correspondingDot.classList.add('active');
+                    }
+                }
+            }, observerOptions);
+
+            // 為每個 .chapter-title 設置 observer
+            titles.forEach(title => {
+                observer.observe(title);
+            });
+        }
+
+
+
+        function initializeScrollEvents() {
             window.addEventListener('scroll', function() {
                 const scrollPosition = window.scrollY;
                 const scrollRatio = Math.min(scrollPosition / heroHeight, 1);
-                
-                // 計算新的背景顏色
-                const startColor = [140, 128, 105]; // #8C8069
-                const endColor = [243, 230, 204]; // #F3E6CC
+        
+                const startColor = [140, 128, 105];
+                const endColor = [243, 230, 204];
                 const newColor = startColor.map((start, index) => {
                     const end = endColor[index];
                     return Math.round(start + (end - start) * scrollRatio);
                 });
                 document.body.style.backgroundColor = `rgb(${newColor.join(',')})`;
             });
-    
-
-    
-            // 圖表相關代碼
+        }
+        
+        function initializeChart() {
             var ctx = document.getElementById('myChart').getContext('2d');
-            var finalData = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]; // 最終數據
+            var finalData = [22, 21, 28, 51, 21, 31, 33, 55, 58, 70, 101, 52, 67, 152, 210];
             var maxValue = Math.max(...finalData);
-    
+        
             var myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['2021年3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', '2022年1月', '2月'],
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月'],
                     datasets: [{
-                        label: '臉書提及「容貌焦慮」的貼文數',
-                        data: Array(finalData.length).fill(0), // 初始化為全 0
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        label: '貼文數',
+                        data: finalData,
+                        backgroundColor: '#90AEA1',
+                        borderColor: '#90AEA1',
                         borderWidth: 1
                     }]
                 },
@@ -830,179 +1271,88 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: maxValue // 設置 y 軸的最大值
+                            max: maxValue
                         }
                     },
-                    animation: false // 禁用 Chart.js 的內建動畫
+                    animation: false
                 }
             });
-    
-            // 創建 ScrollMagic 控制器
+        
             var controller = new ScrollMagic.Controller();
-    
-            // 動畫狀態
             var isAnimating = false;
-    
-            // 創建場景
+        
             var scene = new ScrollMagic.Scene({
                 triggerElement: "#chart-container",
-                triggerHook: 0.8, // 當元素的 80% 進入視窗時觸發
-                reverse: true // 允許重複觸發
+                triggerHook: 0.8,
+                reverse: true
             })
             .on('enter', function () {
                 if (!isAnimating) {
-                    animateChart();
+                    animateChart(myChart, finalData);
                 }
             })
             .on('leave', function () {
-                // 當離開觸發區域時，重置圖表數據為 0
                 myChart.data.datasets[0].data = Array(finalData.length).fill(0);
                 myChart.update();
                 isAnimating = false;
             })
             .addTo(controller);
-    
-            // 新增 section5 的觸發條件
-            var sceneSection5 = new ScrollMagic.Scene({
-                triggerElement: "#section5",
-                triggerHook: 0.8, // 當元素的 80% 進入視窗時觸發
-                reverse: true // 允許重複觸發
-            })
-            .on('enter', function () {
-                // 這裡可以添加 section5 進入視窗時的邏輯
-                console.log("section5 進入視窗");
-            })
-            .on('leave', function () {
-                // 這裡可以添加 section5 離開視窗時的邏輯
-                console.log("section5 離開視窗");
-            })
-            .addTo(controller);
-    
-            // 新增 section5 的淡入效果
-            var sceneSection5FadeIn = new ScrollMagic.Scene({
-                triggerElement: "#trigger-section",
-                triggerHook: 0,
-                duration: "100%" // 持續整個 section 的高度
-            })
-            .on('progress', function (event) {
-                const section5 = document.getElementById('section5');
-                if (event.progress === 1) {
-                    section5.style.opacity = '1';
+        }
+        
+        function animateChart(chart, finalData) {
+            var isAnimating = true;
+            var animationDuration = 2000;
+            var frameDuration = 1000 / 60;
+            var totalFrames = Math.round(animationDuration / frameDuration);
+            var easeOutQuart = function(t) { return 1 - (--t) * t * t * t; };
+            var frame = 0;
+        
+            var animateFrame = function() {
+                var progress = easeOutQuart(frame / totalFrames);
+                var currentData = finalData.map(value => Math.round(value * progress));
+                chart.data.datasets[0].data = currentData;
+                chart.update();
+        
+                if (frame < totalFrames) {
+                    frame++;
+                    requestAnimationFrame(animateFrame);
                 } else {
-                    section5.style.opacity = '0';
+                    isAnimating = false;
                 }
-            })
-            .addTo(controller);
-    
-            function animateChart() {
-                isAnimating = true;
-                var animationDuration = 2000; // 動畫持續時間（毫秒）
-                var frameDuration = 1000 / 60; // 假設 60fps
-                var totalFrames = Math.round(animationDuration / frameDuration);
-                var easeOutQuart = function(t) { return 1 - (--t) * t * t * t; }; // 緩動函數
-                var frame = 0;
-    
-                var animateFrame = function() {
-                    var progress = easeOutQuart(frame / totalFrames);
-                    var currentData = finalData.map(value => Math.round(value * progress));
-                    myChart.data.datasets[0].data = currentData;
-                    myChart.update();
-    
-                    if (frame < totalFrames) {
-                        frame++;
-                        requestAnimationFrame(animateFrame);
-                    } else {
-                        isAnimating = false;
-                    }
-                };
-    
-                requestAnimationFrame(animateFrame);
-            }
-    
-            // 確保圖片正確加載
-            function checkImage(url) {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => resolve(`圖片加載成功: ${url}`);
-                    img.onerror = () => reject(`圖片加載失敗: ${url}`);
-                    img.src = url;
-                });
-            }
-    
-            checkImage('images/mirror_piece.png')
-                .then(message => console.log(message))
-                .catch(error => console.error(error));
-    
-            const dots = document.querySelectorAll('.dot-nav .dot');
-            const sections = document.querySelectorAll('.section');
-    
-            // 點擊圓點時滾動到對應區域
-            dots.forEach(dot => {
-                dot.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('data-section');
-                    const targetSection = document.getElementById(targetId);
-                    targetSection.scrollIntoView({ behavior: 'smooth' });
-                });
+            };
+        
+            requestAnimationFrame(animateFrame);
+        }
+        
+        function setupQuizForm() {
+            document.getElementById('quiz-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                calculateScore();
             });
-    
-            // 滾動時更新活動圓點
-            window.addEventListener('scroll', function() {
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    const sectionHeight = section.clientHeight;
-                    if (pageYOffset >= sectionTop - sectionHeight / 3) {
-                        current = section.getAttribute('id');
-                    }
-                });
-    
-                dots.forEach(dot => {
-                    dot.classList.remove('active');
-                    if (dot.getAttribute('data-section') === current) {
-                        dot.classList.add('active');
-                    }
-                });
-            });
-    
-            function nextQuestion(currentQuestion) {
-                const currentElement = document.getElementById(`question-${currentQuestion}`);
-                const nextElement = document.getElementById(`question-${currentQuestion + 1}`);
-                currentElement.style.display = 'none';
-                if (nextElement) {
-                    nextElement.style.display = 'block';
-                }
+        }
+        
+        function calculateScore() {
+            const form = document.getElementById('quiz-form');
+            const formData = new FormData(form);
+            let score = 0;
+        
+            for (let entry of formData.entries()) {
+                score += parseInt(entry[1]);
             }
-    
-            function calculateScore() {
-                const form = document.getElementById('quiz-form');
-                const formData = new FormData(form);
-                let score = 0;
-    
-                for (let entry of formData.entries()) {
-                    score += parseInt(entry[1]);
-                }
-    
-                const resultDiv = document.getElementById('result');
-                let resultText = '';
-    
-                if (score < 15) {
-                    resultText = '恭喜你沒有容貌焦慮的問題！';
-                } else if (score >= 15 && score <= 20) {
-                    resultText = '你對容貌已經有焦慮的傾向，可能已影響生活，可透過專業協助恢復生活品質。';
+        
+            const resultDiv = document.getElementById('result');
+            let resultText = '';
+        
+            if (score < 15) {
+                resultText = '恭喜你沒有容貌焦慮的問題！';
+            } else if (score >= 15 && score <= 20) {
+                resultText = '你對容貌已經有焦慮的傾向，可能已影響生活，可透過專業協助恢復生活品質。';
             } else {
                 resultText = '你極有可能有容貌焦慮的問題，且對生活造成不少影響，建議尋求醫療資源協助。';
             }
-
+        
             resultDiv.textContent = `你的總得分是 ${score} 分。${resultText}`;
         }
-
-        // 監聽導航點的活動狀態更新
-        window.nextQuestion = nextQuestion;
-        window.calculateScore = calculateScore;
-    });
-</script>
-
-    
+    </script>
 </body>
 </html>
