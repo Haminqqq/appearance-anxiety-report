@@ -505,18 +505,19 @@
         document.addEventListener('DOMContentLoaded', function() {
             const textElement = document.getElementById('typing-text');
             const originalText = textElement.textContent;
+            let typingTimeout = null; // 用于存储定时器
 
             let observer = new IntersectionObserver(function(entries) {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting) {  // 當元素進入視口
+                    if (entry.isIntersecting) {  // 当元素进入视口
                         startTyping();
                     } else {
                         resetTyping();
                     }
                 });
-            }, { threshold: 0.5 });  // 設定當元素50%可見時觸發
+            }, { threshold: 0.5 });  // 设置当元素50%可见时触发
 
-            observer.observe(textElement);  // 觀察目標元素
+            observer.observe(textElement);  // 观察目标元素
 
             function startTyping() {
                 textElement.textContent = ''; // 清空初始文字
@@ -526,21 +527,23 @@
                     if (i < originalText.length) {
                         textElement.textContent += originalText.charAt(i);
                         i++;
-                        setTimeout(typeWriter, 100); // 設定打字速度
+                        typingTimeout = setTimeout(typeWriter, 100); // 设置打字速度
                     } else {
-                        textElement.style.borderRight = 'none'; // 打字完成後隱藏光標
+                        textElement.style.borderRight = 'none'; // 打字完成后隐藏光标
                     }
                 }
 
-                textElement.style.borderRight = '3px solid'; // 顯示光標
-                typeWriter();  // 開始打字效果
+                textElement.style.borderRight = '3px solid'; // 显示光标
+                typeWriter();  // 开始打字效果
             }
 
             function resetTyping() {
-                textElement.textContent = '';  // 滾出區域時清空文字
-                textElement.style.borderRight = 'none';  // 隱藏光標
+                clearTimeout(typingTimeout);  // 清除定时器，防止打字过程残留
+                textElement.textContent = '';  // 滚出区域时清空文字
+                textElement.style.borderRight = 'none';  // 隐藏光标
             }
             });
+
 
 
 
