@@ -318,7 +318,6 @@
             max-width: 660px;
             margin: 20pt auto;
             padding: 10px 40px;
-            opacity: 0;  /* 默認透明 */
             position: relative;
             color: #3E3E40;
             transition: opacity 1.5s ease, transform 1.5s ease;  
@@ -327,6 +326,18 @@
             font-size: 1.1em;
         }
 
+        /* 需要上移和淡入的內容 */
+        .content.animate {
+            opacity: 0; /* 初始透明 */
+            transform: translateY(100px); /* 初始位置向下偏移 */
+            transition: opacity 1.5s ease, transform 1.5s ease; /* 淡入和上移動畫 */
+        }
+
+        /* 當滾動到合適位置，觸發動畫 */
+        .content.animate.show {
+            opacity: 1; /* 淡入 */
+            transform: translateY(0); /* 回到正常位置 */
+        }
 
         .chapter-title {
             font-family: 'NewTegomin', serif; /* 使用新字體 */
@@ -453,6 +464,24 @@
             color: #6C6C6C; /* 設置文字顏色 */
             margin: 0 auto 10px auto; /* 調整底部的 margin 值來讓圖表和文字更接近 */
         }
+        #typing-text {
+            font-family: monospace; /* 模擬打字機的字體 */
+            white-space: pre; /* 保留空格和換行符 */
+            overflow: hidden; /* 隱藏溢出的文字 */
+            border-right: 3px solid; /* 模擬打字機光標 */
+            width: 0; /* 初始時沒有顯示文字 */
+            font-size: 17px; /* 修改字體大小，這裡設置為24px，根據需要調整 */
+            animation: blink-caret 0.75s step-end infinite; /* 光標閃爍效果 */
+        }
+
+        @keyframes blink-caret {
+        from, to { border-color: transparent; }
+        50% { border-color: black; }
+        }
+
+        #shadow-text {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 設置文字陰影 */
+        }
 
 
 
@@ -472,6 +501,49 @@
     
 
     <script>
+        //引用文字打字機效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const textElement = document.getElementById('typing-text');
+            const originalText = textElement.textContent;
+
+            let observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {  // 當元素進入視口
+                        startTyping();
+                    } else {
+                        resetTyping();
+                    }
+                });
+            }, { threshold: 0.5 });  // 設定當元素50%可見時觸發
+
+            observer.observe(textElement);  // 觀察目標元素
+
+            function startTyping() {
+                textElement.textContent = ''; // 清空初始文字
+                let i = 0;
+
+                function typeWriter() {
+                    if (i < originalText.length) {
+                        textElement.textContent += originalText.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 100); // 設定打字速度
+                    } else {
+                        textElement.style.borderRight = 'none'; // 打字完成後隱藏光標
+                    }
+                }
+
+                textElement.style.borderRight = '3px solid'; // 顯示光標
+                typeWriter();  // 開始打字效果
+            }
+
+            function resetTyping() {
+                textElement.textContent = '';  // 滾出區域時清空文字
+                textElement.style.borderRight = 'none';  // 隱藏光標
+            }
+            });
+
+
+
         document.addEventListener('DOMContentLoaded', function() {
             const gameHint = document.getElementById('game-hint');
             const gameHintParagraph = gameHint.querySelector('p'); // 取得 game-hint 內的 <p> 元素
@@ -544,194 +616,205 @@
 
 
         <div class="content">
-        <h2 style="margin-top: 20px;"><strong style="color: #94B2C6;">鏡中映出的，是誰的面孔？</strong></h2>
-        <p>在自我展示成為常態的時代，我們或許都曾在某一刻，定格在那片冷冽的反光中，端詳自己的面孔，試圖尋找些什麼，也許是美，也許是缺陷。然而，我們真正尋找的，是滿足社會期待的形象，還是某種讓自己安心的確認：「我看起來還不錯吧？」</p>
-        <p>但在那追尋的過程中，有些人開始迷失在鏡像、影像與現實之間，容貌焦慮便從這樣的縫隙中悄然滋生，如同籠罩心靈的陰霾，逐漸吞噬自我認同感。</p>
-        <p><strong style="color: #A6C6B9;">容貌焦慮，是當我們無法從鏡子裡看見真實的自己，而只能看到他人與自我期待的樣貌時，心底所泛起的恐懼。</strong></p>
-        <p>猶如一面破碎的鏡子，將裂痕映射在臉上，讓每一個不完美的角落變得無比尖銳，時不時扎進心房。</p>
+            <h2 style="margin-top: 20px;"><strong style="color: #94B2C6;">鏡中映出的，是誰的面孔？</strong></h2>
+            <p>在自我展示成為常態的時代，我們或許都曾在某一刻，定格在那片冷冽的反光中，端詳自己的面孔，試圖尋找些什麼，也許是美，也許是缺陷。然而，我們真正尋找的，是滿足社會期待的形象，還是某種讓自己安心的確認：「我看起來還不錯吧？」</p>
+            <p>但在那追尋的過程中，有些人開始迷失在鏡像、影像與現實之間，容貌焦慮便從這樣的縫隙中悄然滋生，如同籠罩心靈的陰霾，逐漸吞噬自我認同感。</p>
+            <p><strong style="color: #A6C6B9;">容貌焦慮，是當我們無法從鏡子裡看見真實的自己，而只能看到他人與自我期待的樣貌時，心底所泛起的恐懼。</strong></p>
+            <p>猶如一面破碎的鏡子，將裂痕映射在臉上，讓每一個不完美的角落變得無比尖銳，時不時扎進心房。</p>
 
-        <h2><strong style="color: #94B2C6;">現實與虛擬的割裂</strong></h2>
+            <h2><strong style="color: #94B2C6;">現實與虛擬的割裂</strong></h2>
 
-        <p>「在維多利亞時期的英國，一位名為格雷的年輕男子，五官如同精心打磨的玉石般完美無瑕。然而，他卻嫉妒著自己的肖像畫能永保青春，因此不惜以靈魂為代價，讓畫像替他承受歲月與罪惡的痕跡。」說起容貌焦慮的經驗與體悟，長期生活在海外的戒賭諮商師 Oscar Wilde ，興致勃勃地分享由作家奧斯卡·王爾德於19世紀創作的《道林格雷的畫像》。</p>
-        <p>在故事中，主角格雷看似享有青春永駐的特權，然而，隨著他的品行墮落，畫像也逐漸腐朽，猶如一面映照內心罪惡的鏡子。最終，格雷再也無法忍受畫中醜陋模樣的他，拿起刀刺向了畫，卻也同時刺穿了自己的靈魂...</p>
-        <p>如今，在社群媒體精心塑造完美形象的人們，同樣試圖將現實中的瑕疵掩蓋起來，造成現實與想像的割裂。正如 Oscar Wilde 所言：「我會羨慕那些，能做自己的、毫不在意別人看法的人，他們似乎活出了那種，『反正我就是這樣』的人生態度。」</p>
-        <p>然而，現實中大多數人無法擺脫對外界評價的焦慮。社群媒體上的形象成為一種「畫像」，承載了人們對完美的追求，抑或是如同一面鏡子，反映出內心深處對美與不完美的矛盾。當現實與虛擬形象之間的差距越來越大，人們的焦慮感也隨之增長，從而陷入困境——表面上看似完美無瑕，但內心卻逐漸崩潰。</p>
+            <p>「在維多利亞時期的英國，一位名為格雷的年輕男子，五官如同精心打磨的玉石般完美無瑕。然而，他卻嫉妒著自己的肖像畫能永保青春，因此不惜以靈魂為代價，讓畫像替他承受歲月與罪惡的痕跡。」說起容貌焦慮的經驗與體悟，長期生活在海外的戒賭諮商師 Oscar Wilde ，興致勃勃地分享由作家奧斯卡·王爾德於19世紀創作的《道林格雷的畫像》。</p>
+            <p>在故事中，主角格雷看似享有青春永駐的特權，然而，隨著他的品行墮落，畫像也逐漸腐朽，猶如一面映照內心罪惡的鏡子。最終，格雷再也無法忍受畫中醜陋模樣的他，拿起刀刺向了畫，卻也同時刺穿了自己的靈魂...</p>
+            <p>如今，在社群媒體精心塑造完美形象的人們，同樣試圖將現實中的瑕疵掩蓋起來，造成現實與想像的割裂。正如 Oscar Wilde 所言：「我會羨慕那些，能做自己的、毫不在意別人看法的人，他們似乎活出了那種，『反正我就是這樣』的人生態度。」</p>
+            <p>然而，現實中大多數人無法擺脫對外界評價的焦慮。社群媒體上的形象成為一種「畫像」，承載了人們對完美的追求，抑或是如同一面鏡子，反映出內心深處對美與不完美的矛盾。當現實與虛擬形象之間的差距越來越大，人們的焦慮感也隨之增長，從而陷入困境——表面上看似完美無瑕，但內心卻逐漸崩潰。</p>
 
-        <h2><strong style="color: #94B2C6;">社群媒體是罪魁禍首嗎？</strong></h2>
-        <p>近年來，大眾媒體和社群媒體上的「容貌羞辱」現象屢見不鮮，無論是新聞報導還是網絡討論，總是圍繞著藝人或網紅的外貌變化大做文章。一會兒譏笑藝人「老化」、「皮膚鬆垮」，一會兒又批評她們「整形過度」、「塑膠臉」，甚至喜歡看她們「卸妝前後」的對比。這些評論彷彿在傳達：變老和變醜是一種罪過。</p>
-        <p>從 Instagram 的濾鏡自拍，到 TikTok 的變裝影片，那些精心打理、經過濾鏡和修圖處理的影像，不斷向年輕族群傳遞一個訊息：美是可以被「修正」和「達成」的。不但模糊了外貌的真實與虛擬之間的界限，讓人對自己的外貌有了更高的期望，也因此讓他們更容易陷入焦慮。</p>
-        <p>這股對外貌的焦慮感也蔓延到年齡更小的群體。在 Tiktok 上，風靡一時的「翻轉」特效掀起了「左右臉對稱挑戰」，透過將影像水平翻轉來確認臉部的對稱性，讓人一窺「他人眼中的自己」。使用該特效所製作的影片已接近 1000 萬則，總瀏覽量更突破  230  億次。為了與同儕擁有共通的話題，國小生的多莉也嘗試了這項挑戰，但她這才意識到，自己在他人眼中與鏡中的模樣竟截然不同。「我覺得自己嘴巴看起來歪歪的，突然覺得自己很醜...」，她失落地說著，開始無法接受自己的模樣。
-        </p>
-        <p>多莉提到，雖然她經常上網尋找改善的方法，但效果有限。「那些影片就說不要側睡，但我感覺沒有什麼很明顯的效果」，她表示，未來可能會考慮戴牙套來矯正嘴部歪斜的問題，即使沒有人認為她需要改變。
-        </p>
-        <p>心理師林佳瑾也發現，部分病患的焦慮原因來自於社群媒體小紅書。「小紅書上的照片是一種極端的呈現，」林佳瑾指出。「這並不是真實生活中的樣子。生活中的樣子，應該是腰間坐下時可能會有兩三層脂肪，雙腿之間也未必有縫隙。」她說，曾有病患因為做不到小紅書流行的「反手抱腰」挑戰而感到焦慮，甚至因此懷疑自己是否太胖。
-        </p>
-        <p>林佳瑾直言，這樣的內容過於不真實，且有害於心理健康。社群媒體上的內容看似娛樂性豐富，實際上不僅窄化審美標準，還會透過一些技術手段，強化使用者的自我評價。對於尚處於自我認知發展階段的青少年來說，便容易引發對外貌的過度關注和焦慮。
-        </p>
-        <p>實際上，社群媒體所引起的容貌焦慮，背後是由多重且複雜的因素共構而成，涵蓋社會文化、家庭背景、同儕影響以及個人自我認知。身心科醫師黃偉俐指出：「在強調外貌、醫美產業壟斷的社會，容貌焦慮最終可能被轉化為對財務狀況或社會地位的焦慮。」由此可見，社群媒體雖放大了外貌競爭的壓力，但深層原因還在於社會期待、消費文化與個人價值衡量方式的錯綜交織，促成了容貌焦慮的蔓延。
-        </p>
-        <p><strong style="color: #A1C1B3;">容貌焦慮不是個人的掙扎，而是社會結構和文化價值觀共同作用的結果。
-        </strong></p>
-        <p>在一個將外貌與自我價值劃上等號的文化中，女性常常不得不迎合這些被塑造成完美的標準，彷彿唯有達到這些標準，才能獲得認可與尊重。在這種情況下，除了天生麗質，經濟能力成為了追求理想外貌的門檻。
-        </p>
-        <p>如同黃偉俐所說，「貧窮限制了想像，這句話同樣適用於對美貌的追求。」在社群媒體上，網路名人展示的不僅是精緻的容貌，還包括奢華的生活方式，從Dior、Louis Vuitton等名貴精品到海外豪華渡假飯店，這些物質成為了外貌背後的隱藏資本。容貌焦慮也因此演變為炫富行為，個人經濟能力與外貌競爭緊密相連，進一步強化了文化與經濟因素對容貌焦慮的影響，最終呈現為「名牌包焦慮症」等形式。
-        </p>
-        <p>因此，社群媒體並非容貌焦慮的唯一或主要原因，它就像 instagram 的放大鏡（內容推薦區域）一般，讓我們更容易觀察到容貌焦慮的普遍性與片面樣貌。換句話說，社群媒體上的按讚、分享與演算法機制，或許加劇了某些審美標準的傳播，但真正導致容貌焦慮的，是更深層的社會和個人心理結構。
-        </p>
-
-        <h2><strong style="color: #94B2C6;">好看的人為何要容貌焦慮？容貌焦慮就是愛美嗎？</strong></h2>
-        <p>在社群媒體的討論中，許多人感到疑惑：為何那些擁有外貌優勢的人仍會深陷容貌焦慮？身心科醫師張哲嘉解釋，健身網紅、媒體藝人和芭蕾舞者等屬於「高風險族群」，他們通常更容易受困於容貌焦慮，因為他們的表現或職業成功與外貌有著直接的關聯。他說，「這些人經常在社群媒體上看到外貌出眾的同行，就可能互相比較。因為長得比較好看的人，通常會比較有好的表現。」
-        </p>
-        <p>YouTuber 美麗妄娜便曾經拍攝影片抒發容貌焦慮之苦，她形容這種狀態為「內心的瑕疵放大了外表的瑕疵」。然而，觀眾的反應卻大相徑庭，許多人認為她只是對自己要求過高。這不禁引人深思：這些苛刻的要求標準究竟從何而來？更令人費解的是，網路上肆意批評他人外貌的人也比比皆是，凸顯了人們對外貌的態度存在著雙重標準。
-        </p>
-
-        <p><strong style="color: #A1C1B3; font-style: italic;">「如果我沒有，你也不可以有」</strong></p>
-        <P>在容貌焦慮的討論中，「討人厭」的安海瑟薇經常被用來解讀人們的心理狀態。她因《麻雀變公主》和《穿著Prada的惡魔》等經典作品而廣受矚目，儘管擁有成功的職業生涯和亮麗的螢幕形象，卻時常被指責為虛假做作。這顯示出「螃蟹效應」的心理現象：當一隻螃蟹試圖逃出桶子時，其他螃蟹會將它拉回，確保全體無法脫逃。安海瑟薇就如同那隻想要脫穎而出的螃蟹，而部分群體則通過貶低她來維持心理上的「公平」。
-        </P>
-        <P>也就是說，當人們看到公眾人物的完美形象時，往往會將對自身的焦慮投射到他們身上，尤其是認為無法達到自己對完美的期許時，焦慮感時常會轉向外界，藉由貶低他人來暫時緩解自身的不安。這正是現代社會對外貌標準過度嚴苛的根源之一，在社群媒體的推波助瀾下，無論是藝人的精緻形象，還是網紅的日常分享，都容易引發比較與焦慮的情緒。
-        </P>
-        <P>同時，當公眾人物意識到自己成為視線焦點，也容易不自覺地內化外界的目光，如同一面潛在的鏡子，時刻反映著他人的期待與審視，而造成過分關注外貌的每一個細節。</P>
-        <p><strong style="color: #A1C1B3;">容貌焦慮更多源於主觀的感知，並非外界所見的客觀事實。</strong></p>
-        <p>擁有「性感教主」稱號的網路名人雪碧（方祺媛），經常在社群上分享整形的心路歷程。由於工作環境經常接觸外型亮麗的女性，使她感到強烈的比較壓力，在 10 年內斥資 800 萬進行多次整型手術，儘管如此，她依然受到容貌焦慮纏身。她解釋，整形的路就是這樣，「你只要走上做鼻子、做額頭、做眼睛、做下巴的路，只要整形的人都懂我的感覺，你就是一輩子要修修補補。」
-        </p>
-        <p>另一方面，容貌焦慮並不僅限於渴望完美的人。許多自認外貌平庸或不佳的人，不僅避免在社群媒體上展示自己的照片，甚至在日常生活中也會將自己隱藏起來，例如以口罩或寬鬆的穿搭，遮掩住不夠自信的容顏與身材，以防受到外界的審視與評價。</p>
-        <p>無論選擇曝光還是隱藏，容貌焦慮如同一張無形的網，將人們緊緊束縛在對「完美」的無止境追逐與對「不完美」的無盡逃避之間，令人陷入了一種難以自拔的焦慮迴圈。有些人精雕細琢，不斷地在社會標準的壓力下改變自己；另一部分人則躲在面具後，害怕面對真實的自我與社會的目光。最終，因為對社會標準的屈服和對自我價值的不確定，他們都無法逃脫外界的審視和自我評判。
-        </p>
-
-        <h2><strong style="color: #94B2C6;">覺得自己不好看就算容貌焦慮嗎？</strong></h2>
-        <p>2023 年年初，隨著疫情減緩，口罩政策也逐步鬆綁，「容貌焦慮」一詞迅速成為熱議的話題。根據QSearch 輿情分析平台的數據顯示，Facebook 上關於容貌焦慮的討論聲量，在同年 2 月宣布口罩政策放寬後迅速飆升，顯示對外貌擔憂的人數急速成長。</p>
-
-        <div id="chart-container">
-            <canvas id="myChart"></canvas>
-            <p style="text-align: center; font-size: 12px; color: #A9A9A9;">
-                隨著更多人面對重返「全臉曝光」的現實，容貌焦慮便成為眾人共同的話題。<br>
-                資料來源：《QSearch》游孟欣
+        </div>
+        <div class="content animate">
+            <h2><strong style="color: #94B2C6;">社群媒體是罪魁禍首嗎？</strong></h2>
+            <p>近年來，大眾媒體和社群媒體上的「容貌羞辱」現象屢見不鮮，無論是新聞報導還是網絡討論，總是圍繞著藝人或網紅的外貌變化大做文章。一會兒譏笑藝人「老化」、「皮膚鬆垮」，一會兒又批評她們「整形過度」、「塑膠臉」，甚至喜歡看她們「卸妝前後」的對比。這些評論彷彿在傳達：變老和變醜是一種罪過。</p>
+            <p>從 Instagram 的濾鏡自拍，到 TikTok 的變裝影片，那些精心打理、經過濾鏡和修圖處理的影像，不斷向年輕族群傳遞一個訊息：美是可以被「修正」和「達成」的。不但模糊了外貌的真實與虛擬之間的界限，讓人對自己的外貌有了更高的期望，也因此讓他們更容易陷入焦慮。</p>
+            <p>這股對外貌的焦慮感也蔓延到年齡更小的群體。在 Tiktok 上，風靡一時的「翻轉」特效掀起了「左右臉對稱挑戰」，透過將影像水平翻轉來確認臉部的對稱性，讓人一窺「他人眼中的自己」。使用該特效所製作的影片已接近 1000 萬則，總瀏覽量更突破  230  億次。為了與同儕擁有共通的話題，國小生的多莉也嘗試了這項挑戰，但她這才意識到，自己在他人眼中與鏡中的模樣竟截然不同。「我覺得自己嘴巴看起來歪歪的，突然覺得自己很醜...」，她失落地說著，開始無法接受自己的模樣。
             </p>
-            
+            <p>多莉提到，雖然她經常上網尋找改善的方法，但效果有限。「那些影片就說不要側睡，但我感覺沒有什麼很明顯的效果」，她表示，未來可能會考慮戴牙套來矯正嘴部歪斜的問題，即使沒有人認為她需要改變。
+            </p>
+            <p>心理師林佳瑾也發現，部分病患的焦慮原因來自於社群媒體小紅書。「小紅書上的照片是一種極端的呈現，」林佳瑾指出。「這並不是真實生活中的樣子。生活中的樣子，應該是腰間坐下時可能會有兩三層脂肪，雙腿之間也未必有縫隙。」她說，曾有病患因為做不到小紅書流行的「反手抱腰」挑戰而感到焦慮，甚至因此懷疑自己是否太胖。
+            </p>
+            <p>林佳瑾直言，這樣的內容過於不真實，且有害於心理健康。社群媒體上的內容看似娛樂性豐富，實際上不僅窄化審美標準，還會透過一些技術手段，強化使用者的自我評價。對於尚處於自我認知發展階段的青少年來說，便容易引發對外貌的過度關注和焦慮。
+            </p>
+            <p>實際上，社群媒體所引起的容貌焦慮，背後是由多重且複雜的因素共構而成，涵蓋社會文化、家庭背景、同儕影響以及個人自我認知。身心科醫師黃偉俐指出：「在強調外貌、醫美產業壟斷的社會，容貌焦慮最終可能被轉化為對財務狀況或社會地位的焦慮。」由此可見，社群媒體雖放大了外貌競爭的壓力，但深層原因還在於社會期待、消費文化與個人價值衡量方式的錯綜交織，促成了容貌焦慮的蔓延。
+            </p>
+            <p><strong style="color: #A1C1B3;">容貌焦慮不是個人的掙扎，而是社會結構和文化價值觀共同作用的結果。
+            </strong></p>
+            <p>在一個將外貌與自我價值劃上等號的文化中，女性常常不得不迎合這些被塑造成完美的標準，彷彿唯有達到這些標準，才能獲得認可與尊重。在這種情況下，除了天生麗質，經濟能力成為了追求理想外貌的門檻。
+            </p>
+            <p>如同黃偉俐所說，「貧窮限制了想像，這句話同樣適用於對美貌的追求。」在社群媒體上，網路名人展示的不僅是精緻的容貌，還包括奢華的生活方式，從Dior、Louis Vuitton等名貴精品到海外豪華渡假飯店，這些物質成為了外貌背後的隱藏資本。容貌焦慮也因此演變為炫富行為，個人經濟能力與外貌競爭緊密相連，進一步強化了文化與經濟因素對容貌焦慮的影響，最終呈現為「名牌包焦慮症」等形式。
+            </p>
+            <p>因此，社群媒體並非容貌焦慮的唯一或主要原因，它就像 instagram 的放大鏡（內容推薦區域）一般，讓我們更容易觀察到容貌焦慮的普遍性與片面樣貌。換句話說，社群媒體上的按讚、分享與演算法機制，或許加劇了某些審美標準的傳播，但真正導致容貌焦慮的，是更深層的社會和個人心理結構。
+            </p>
+
         </div>
         
+        <div class="content animate">
+            <h2><strong style="color: #94B2C6;">好看的人為何要容貌焦慮？容貌焦慮就是愛美嗎？</strong></h2>
+            <p>在社群媒體的討論中，許多人感到疑惑：為何那些擁有外貌優勢的人仍會深陷容貌焦慮？身心科醫師張哲嘉解釋，健身網紅、媒體藝人和芭蕾舞者等屬於「高風險族群」，他們通常更容易受困於容貌焦慮，因為他們的表現或職業成功與外貌有著直接的關聯。他說，「這些人經常在社群媒體上看到外貌出眾的同行，就可能互相比較。因為長得比較好看的人，通常會比較有好的表現。」
+            </p>
+            <p>YouTuber 美麗妄娜便曾經拍攝影片抒發容貌焦慮之苦，她形容這種狀態為「內心的瑕疵放大了外表的瑕疵」。然而，觀眾的反應卻大相徑庭，許多人認為她只是對自己要求過高。這不禁引人深思：這些苛刻的要求標準究竟從何而來？更令人費解的是，網路上肆意批評他人外貌的人也比比皆是，凸顯了人們對外貌的態度存在著雙重標準。
+            </p>
 
-        <p style="margin-top: 30px;">在長時間強制佩戴口罩的日子裡，人們習慣了只露出眉眼的樣貌。當口罩得以摘下後，不少人對於毫無遮掩地面對同事、朋友或是陌生人，感到渾身不自在，也更加有意識地審視自己的外貌。值得注意的是，在意或不滿外貌不一定就是容貌焦慮，而是當這種不滿足感持續影響到日常生活，並且可能引發長期的心理困擾，才是容貌焦慮的界定標準。
-        </p>
-        <p style="margin-top: 50px;"><em style="color: #A1C1B3;">「我連在宿舍睡覺都要戴口罩...，吃飯也要盡量外帶」<br>
-            「有次外出時口罩的線斷了，我覺得很焦慮，很想躲起來」
-        </em></p>
-        <p>從國中起就習慣戴著口罩的大學生張同學，對容貌的焦慮已經嚴重到影響生活。疫情期間，所有人都必須戴著口罩的生活，對他而言是一種解脫，因為他認為自己不再是「異類」，不再有人好奇他為什麼長期戴著口罩。然而，隨著「容貌焦慮」一詞在社群媒體上頻繁出現，張同學對此現象感到不解。
-        </p>
-        </p>
-        <p>「某些網紅經常修圖，然後說自己也有容貌焦慮，我覺得這樣很矛盾，這只會讓我們這些真正有困擾的人感到更加痛苦。」他質疑，這些網紅是否真正理解容貌焦慮的本質，還是只是利用這個話題來博取關注。「他們說自己焦慮，但其實生活並沒有因此受到嚴重影響，這和我們這些真正被外貌困擾的人是不同的。」
-        </p>
-        <p>如同另一位大學生 U 同學所說，容貌焦慮的核心在於嚴重否定自身的外貌，而不同於追求精緻外表的常見行為。同樣長年戴口罩應對社交場合的她指出，有些人在社群媒體上發佈照片時，搭配上容貌焦慮的文案，實際上只是跟隨流行，這讓她對該詞的濫用感到不滿。
-        </p>
-        <p>U 同學擔心，隨著容貌焦慮的廣泛討論，社會的審美標準會更加窄化，並可能誤導更多人認為關注外貌的行為是病態的，因而產生錯誤的自我認知。她也提到，這種氛圍可能對韓星、美妝網紅等公眾人物造成負面影響，因為他們的形象經常被誤解為加劇容貌焦慮的原因。然而 U 同學認為，個人應該有能力分辨並管理自己的情緒，而不是單純依賴社群媒體或他人的照片來決定自己的外貌是否值得焦慮。
-        </p>
-  
-            <!-- 心理測驗內容 -->
-            <div id="quiz-container">
-                <h2 class="no-shadow">你有容貌焦慮嗎？來測試看看吧！</h2>
-                 <!-- 答題進度條 -->
-                <div id="progress-container">
-                    <p id="progress-text">第 1 / 9 題</p>
-                    <div id="progress-bar">
-                        <div id="progress-bar-fill"></div>
+            <p><strong style="color: #A1C1B3; font-style: italic;">「如果我沒有，你也不可以有」</strong></p>
+            <P>在容貌焦慮的討論中，「討人厭」的安海瑟薇經常被用來解讀人們的心理狀態。她因《麻雀變公主》和《穿著Prada的惡魔》等經典作品而廣受矚目，儘管擁有成功的職業生涯和亮麗的螢幕形象，卻時常被指責為虛假做作。這顯示出「螃蟹效應」的心理現象：當一隻螃蟹試圖逃出桶子時，其他螃蟹會將它拉回，確保全體無法脫逃。安海瑟薇就如同那隻想要脫穎而出的螃蟹，而部分群體則通過貶低她來維持心理上的「公平」。
+            </P>
+            <P>也就是說，當人們看到公眾人物的完美形象時，往往會將對自身的焦慮投射到他們身上，尤其是認為無法達到自己對完美的期許時，焦慮感時常會轉向外界，藉由貶低他人來暫時緩解自身的不安。這正是現代社會對外貌標準過度嚴苛的根源之一，在社群媒體的推波助瀾下，無論是藝人的精緻形象，還是網紅的日常分享，都容易引發比較與焦慮的情緒。
+            </P>
+            <P>同時，當公眾人物意識到自己成為視線焦點，也容易不自覺地內化外界的目光，如同一面潛在的鏡子，時刻反映著他人的期待與審視，而造成過分關注外貌的每一個細節。</P>
+            <p><strong style="color: #A1C1B3;">容貌焦慮更多源於主觀的感知，並非外界所見的客觀事實。</strong></p>
+            <p>擁有「性感教主」稱號的網路名人雪碧（方祺媛），經常在社群上分享整形的心路歷程。由於工作環境經常接觸外型亮麗的女性，使她感到強烈的比較壓力，在 10 年內斥資 800 萬進行多次整型手術，儘管如此，她依然受到容貌焦慮纏身。她解釋，整形的路就是這樣，「你只要走上做鼻子、做額頭、做眼睛、做下巴的路，只要整形的人都懂我的感覺，你就是一輩子要修修補補。」
+            </p>
+            <p>另一方面，容貌焦慮並不僅限於渴望完美的人。許多自認外貌平庸或不佳的人，不僅避免在社群媒體上展示自己的照片，甚至在日常生活中也會將自己隱藏起來，例如以口罩或寬鬆的穿搭，遮掩住不夠自信的容顏與身材，以防受到外界的審視與評價。</p>
+            <p>無論選擇曝光還是隱藏，容貌焦慮如同一張無形的網，將人們緊緊束縛在對「完美」的無止境追逐與對「不完美」的無盡逃避之間，令人陷入了一種難以自拔的焦慮迴圈。有些人精雕細琢，不斷地在社會標準的壓力下改變自己；另一部分人則躲在面具後，害怕面對真實的自我與社會的目光。最終，因為對社會標準的屈服和對自我價值的不確定，他們都無法逃脫外界的審視和自我評判。
+            </p>
+        </div>
+        
+        <div class="content animate">
+            <h2><strong style="color: #94B2C6;">覺得自己不好看就算容貌焦慮嗎？</strong></h2>
+            <p>2023 年年初，隨著疫情減緩，口罩政策也逐步鬆綁，「容貌焦慮」一詞迅速成為熱議的話題。根據QSearch 輿情分析平台的數據顯示，Facebook 上關於容貌焦慮的討論聲量，在同年 2 月宣布口罩政策放寬後迅速飆升，顯示對外貌擔憂的人數急速成長。</p>
+
+            <div id="chart-container">
+                <canvas id="myChart"></canvas>
+                <p style="text-align: center; font-size: 12px; color: #A9A9A9;">
+                    隨著更多人面對重返「全臉曝光」的現實，容貌焦慮便成為眾人共同的話題。<br>
+                    資料來源：《QSearch》游孟欣
+                </p>
+                
+            </div>
+            
+
+            <p style="margin-top: 30px;">在長時間強制佩戴口罩的日子裡，人們習慣了只露出眉眼的樣貌。當口罩得以摘下後，不少人對於毫無遮掩地面對同事、朋友或是陌生人，感到渾身不自在，也更加有意識地審視自己的外貌。值得注意的是，在意或不滿外貌不一定就是容貌焦慮，而是當這種不滿足感持續影響到日常生活，並且可能引發長期的心理困擾，才是容貌焦慮的界定標準。
+            </p>
+            <p style="margin-top: 50px;">
+                <em style="color: #A1C1B3;">
+                    <span id="typing-text">「我連在宿舍睡覺都要戴口罩...，吃飯也要盡量外帶」<br>
+「有次外出時口罩的線斷了，我覺得很焦慮，很想躲起來」</span>
+                </em>
+            </p>
+            <p>從國中起就習慣戴著口罩的大學生張同學，對容貌的焦慮已經嚴重到影響生活。疫情期間，所有人都必須戴著口罩的生活，對他而言是一種解脫，因為他認為自己不再是「異類」，不再有人好奇他為什麼長期戴著口罩。然而，隨著「容貌焦慮」一詞在社群媒體上頻繁出現，張同學對此現象感到不解。
+            </p>
+            </p>
+            <p>「某些網紅經常修圖，然後說自己也有容貌焦慮，我覺得這樣很矛盾，這只會讓我們這些真正有困擾的人感到更加痛苦。」他質疑，這些網紅是否真正理解容貌焦慮的本質，還是只是利用這個話題來博取關注。「他們說自己焦慮，但其實生活並沒有因此受到嚴重影響，這和我們這些真正被外貌困擾的人是不同的。」
+            </p>
+            <p>如同另一位大學生 U 同學所說，容貌焦慮的核心在於嚴重否定自身的外貌，而不同於追求精緻外表的常見行為。同樣長年戴口罩應對社交場合的她指出，有些人在社群媒體上發佈照片時，搭配上容貌焦慮的文案，實際上只是跟隨流行，這讓她對該詞的濫用感到不滿。
+            </p>
+            <p>U 同學擔心，隨著容貌焦慮的廣泛討論，社會的審美標準會更加窄化，並可能誤導更多人認為關注外貌的行為是病態的，因而產生錯誤的自我認知。她也提到，這種氛圍可能對韓星、美妝網紅等公眾人物造成負面影響，因為他們的形象經常被誤解為加劇容貌焦慮的原因。然而 U 同學認為，個人應該有能力分辨並管理自己的情緒，而不是單純依賴社群媒體或他人的照片來決定自己的外貌是否值得焦慮。
+            </p>
+    
+                <!-- 心理測驗內容 -->
+                <div id="quiz-container">
+                    <h2 class="no-shadow">你有容貌焦慮嗎？來測試看看吧！</h2>
+                    <!-- 答題進度條 -->
+                    <div id="progress-container">
+                        <p id="progress-text">第 1 / 9 題</p>
+                        <div id="progress-bar">
+                            <div id="progress-bar-fill"></div>
+                        </div>
                     </div>
+                    <form id="quiz-form">
+                        <!-- 題目 1 -->
+                        <div class="question" id="question-1">
+                            <p>1. 你一天會刻意檢查自己的外貌幾次？</p>
+                            <label><input type="radio" name="q1" value="4"> 40次</label>
+                            <label><input type="radio" name="q1" value="3"> 20次</label>
+                            <label><input type="radio" name="q1" value="2"> 10次</label>
+                            <label><input type="radio" name="q1" value="1"> 5次</label>
+                            <label><input type="radio" name="q1" value="0"> 從不</label>
+                            <button type="button" onclick="nextQuestion(1)">下一題</button>
+                        </div>
+                        <!-- 題目 2 -->
+                        <div class="question" id="question-2" style="display:none;">
+                            <p>2. 你認為自己的外表怎麼樣？</p>
+                            <label><input type="radio" name="q2" value="4"> 非常不好看</label>
+                            <label><input type="radio" name="q2" value="3"> 好</label>
+                            <label><input type="radio" name="q2" value="2"> 還好</label>
+                            <label><input type="radio" name="q2" value="1"> 有點不好看</label>
+                            <label><input type="radio" name="q2" value="0"> 完全不覺得難看</label>
+                            <button type="button" onclick="nextQuestion(2)">下一題</button>
+                        </div>
+                        <!-- 題目 3 -->
+                        <div class="question" id="question-3" style="display:none;">
+                            <p>3. 你的外貌會讓你心情低落嗎？</p>
+                            <label><input type="radio" name="q3" value="4"> 極度低落</label>
+                            <label><input type="radio" name="q3" value="3"> 非常低落</label>
+                            <label><input type="radio" name="q3" value="2"> 中等</label>
+                            <label><input type="radio" name="q3" value="1"> 有點低落</label>
+                            <label><input type="radio" name="q3" value="0"> 完全低落</label>
+                            <button type="button" onclick="nextQuestion(3)">下一題</button>
+                        </div>
+                        <!-- 題目 4 -->
+                        <div class="question" id="question-4" style="display:none;">
+                            <p>4. 你有多常因為自己的外貌避免社交活動？</p>
+                            <label><input type="radio" name="q4" value="4"> 每次</label>
+                            <label><input type="radio" name="q4" value="3"> 10次中有7次</label>
+                            <label><input type="radio" name="q4" value="2"> 10次中有5次</label>
+                            <label><input type="radio" name="q4" value="1"> 10次中有3次</label>
+                            <label><input type="radio" name="q4" value="0"> 從不</label>
+                            <button type="button" onclick="nextQuestion(4)">下一題</button>
+                        </div>
+                        <!-- 題目 5 -->
+                        <div class="question" id="question-5" style="display:none;">
+                            <p>5. 容貌問題多常佔據你的思考時間？</p>
+                            <label><input type="radio" name="q5" value="4"> 極度頻繁</label>
+                            <label><input type="radio" name="q5" value="3"> 時常</label>
+                            <label><input type="radio" name="q5" value="2"> 半數時間</label>
+                            <label><input type="radio" name="q5" value="1"> 時</label>
+                            <label><input type="radio" name="q5" value="0"> 完全不會</label>
+                            <button type="button" onclick="nextQuestion(5)">下一題</button>
+                        </div>
+                        <!-- 題目 6 -->
+                        <div class="question" id="question-6" style="display:none;">
+                            <p>6. 外貌對你的伴侶、戀愛生活造成多大的影響？</p>
+                            <label><input type="radio" name="q6" value="4"> 極大影響</label>
+                            <label><input type="radio" name="q6" value="3"> 很大影響</label>
+                            <label><input type="radio" name="q6" value="2"> 中等影響</label>
+                            <label><input type="radio" name="q6" value="1"> 有點影響</label>
+                            <label><input type="radio" name="q6" value="0"> 沒影響</label>
+                            <button type="button" onclick="nextQuestion(6)">下一題</button>
+                        </div>
+                        <!-- 題目 7 -->
+                        <div class="question" id="question-7" style="display:none;">
+                            <p>7. 外貌對你的工作、學習能力造成多大影響？</p>
+                            <label><input type="radio" name="q7" value="4"> 極大影響導致無法處理</label>
+                            <label><input type="radio" name="q7" value="3"> 很大影響</label>
+                            <label><input type="radio" name="q7" value="2"> 中等影響</label>
+                            <label><input type="radio" name="q7" value="1"> 有點影響</label>
+                            <label><input type="radio" name="q7" value="0"> 沒影響</label>
+                            <button type="button" onclick="nextQuestion(7)">下一題</button>
+                        </div>
+                        <!-- 題目 8 -->
+                        <div class="question" id="question-8" style="display:none;">
+                            <p>8. 外貌對你的社交生活造成多大的干擾？</p>
+                            <label><input type="radio" name="q8" value="4"> 極大</label>
+                            <label><input type="radio" name="q8" value="3"> 非常</label>
+                            <label><input type="radio" name="q8" value="2"> 中等</label>
+                            <label><input type="radio" name="q8" value="1"> 有</label>
+                            <label><input type="radio" name="q8" value="0"> 完全不會</label>
+                            <button type="button" onclick="nextQuestion(8)">下一題</button>
+                        </div>
+                        <!-- 目 9 -->
+                        <div class="question" id="question-9" style="display:none;">
+                            <p>9. 外貌對於定義「你是誰」很重要，你認同這句話嗎？</p>
+                            <label><input type="radio" name="q9" value="4"> 超級認同</label>
+                            <label><input type="radio" name="q9" value="3"> 非常認同</label>
+                            <label><input type="radio" name="q9" value="2"> 中認同</label>
+                            <label><input type="radio" name="q9" value="1"> 有點認同</label>
+                            <label><input type="radio" name="q9" value="0"> 完全不認同</label>
+                            <button type="button" onclick="calculateScore()">提交</button>
+                        </div>
+                    </form>
+                    <div id="result"></div>
                 </div>
-                <form id="quiz-form">
-                    <!-- 題目 1 -->
-                    <div class="question" id="question-1">
-                        <p>1. 你一天會刻意檢查自己的外貌幾次？</p>
-                        <label><input type="radio" name="q1" value="4"> 40次</label>
-                        <label><input type="radio" name="q1" value="3"> 20次</label>
-                        <label><input type="radio" name="q1" value="2"> 10次</label>
-                        <label><input type="radio" name="q1" value="1"> 5次</label>
-                        <label><input type="radio" name="q1" value="0"> 從不</label>
-                        <button type="button" onclick="nextQuestion(1)">下一題</button>
-                    </div>
-                    <!-- 題目 2 -->
-                    <div class="question" id="question-2" style="display:none;">
-                        <p>2. 你認為自己的外表怎麼樣？</p>
-                        <label><input type="radio" name="q2" value="4"> 非常不好看</label>
-                        <label><input type="radio" name="q2" value="3"> 好</label>
-                        <label><input type="radio" name="q2" value="2"> 還好</label>
-                        <label><input type="radio" name="q2" value="1"> 有點不好看</label>
-                        <label><input type="radio" name="q2" value="0"> 完全不覺得難看</label>
-                        <button type="button" onclick="nextQuestion(2)">下一題</button>
-                    </div>
-                    <!-- 題目 3 -->
-                    <div class="question" id="question-3" style="display:none;">
-                        <p>3. 你的外貌會讓你心情低落嗎？</p>
-                        <label><input type="radio" name="q3" value="4"> 極度低落</label>
-                        <label><input type="radio" name="q3" value="3"> 非常低落</label>
-                        <label><input type="radio" name="q3" value="2"> 中等</label>
-                        <label><input type="radio" name="q3" value="1"> 有點低落</label>
-                        <label><input type="radio" name="q3" value="0"> 完全低落</label>
-                        <button type="button" onclick="nextQuestion(3)">下一題</button>
-                    </div>
-                    <!-- 題目 4 -->
-                    <div class="question" id="question-4" style="display:none;">
-                        <p>4. 你有多常因為自己的外貌避免社交活動？</p>
-                        <label><input type="radio" name="q4" value="4"> 每次</label>
-                        <label><input type="radio" name="q4" value="3"> 10次中有7次</label>
-                        <label><input type="radio" name="q4" value="2"> 10次中有5次</label>
-                        <label><input type="radio" name="q4" value="1"> 10次中有3次</label>
-                        <label><input type="radio" name="q4" value="0"> 從不</label>
-                        <button type="button" onclick="nextQuestion(4)">下一題</button>
-                    </div>
-                    <!-- 題目 5 -->
-                    <div class="question" id="question-5" style="display:none;">
-                        <p>5. 容貌問題多常佔據你的思考時間？</p>
-                        <label><input type="radio" name="q5" value="4"> 極度頻繁</label>
-                        <label><input type="radio" name="q5" value="3"> 時常</label>
-                        <label><input type="radio" name="q5" value="2"> 半數時間</label>
-                        <label><input type="radio" name="q5" value="1"> 時</label>
-                        <label><input type="radio" name="q5" value="0"> 完全不會</label>
-                        <button type="button" onclick="nextQuestion(5)">下一題</button>
-                    </div>
-                    <!-- 題目 6 -->
-                    <div class="question" id="question-6" style="display:none;">
-                        <p>6. 外貌對你的伴侶、戀愛生活造成多大的影響？</p>
-                        <label><input type="radio" name="q6" value="4"> 極大影響</label>
-                        <label><input type="radio" name="q6" value="3"> 很大影響</label>
-                        <label><input type="radio" name="q6" value="2"> 中等影響</label>
-                        <label><input type="radio" name="q6" value="1"> 有點影響</label>
-                        <label><input type="radio" name="q6" value="0"> 沒影響</label>
-                        <button type="button" onclick="nextQuestion(6)">下一題</button>
-                    </div>
-                    <!-- 題目 7 -->
-                    <div class="question" id="question-7" style="display:none;">
-                        <p>7. 外貌對你的工作、學習能力造成多大影響？</p>
-                        <label><input type="radio" name="q7" value="4"> 極大影響導致無法處理</label>
-                        <label><input type="radio" name="q7" value="3"> 很大影響</label>
-                        <label><input type="radio" name="q7" value="2"> 中等影響</label>
-                        <label><input type="radio" name="q7" value="1"> 有點影響</label>
-                        <label><input type="radio" name="q7" value="0"> 沒影響</label>
-                        <button type="button" onclick="nextQuestion(7)">下一題</button>
-                    </div>
-                    <!-- 題目 8 -->
-                    <div class="question" id="question-8" style="display:none;">
-                        <p>8. 外貌對你的社交生活造成多大的干擾？</p>
-                        <label><input type="radio" name="q8" value="4"> 極大</label>
-                        <label><input type="radio" name="q8" value="3"> 非常</label>
-                        <label><input type="radio" name="q8" value="2"> 中等</label>
-                        <label><input type="radio" name="q8" value="1"> 有</label>
-                        <label><input type="radio" name="q8" value="0"> 完全不會</label>
-                        <button type="button" onclick="nextQuestion(8)">下一題</button>
-                    </div>
-                    <!-- 目 9 -->
-                    <div class="question" id="question-9" style="display:none;">
-                        <p>9. 外貌對於定義「你是誰」很重要，你認同這句話嗎？</p>
-                        <label><input type="radio" name="q9" value="4"> 超級認同</label>
-                        <label><input type="radio" name="q9" value="3"> 非常認同</label>
-                        <label><input type="radio" name="q9" value="2"> 中認同</label>
-                        <label><input type="radio" name="q9" value="1"> 有點認同</label>
-                        <label><input type="radio" name="q9" value="0"> 完全不認同</label>
-                        <button type="button" onclick="calculateScore()">提交</button>
-                    </div>
-                </form>
-                <div id="result"></div>
             </div>
         </div>
-        
+            
     </div>
 
        
@@ -739,7 +822,7 @@
     <!-- 第二章 -->
     <div class="chapter-section" id="chapter2">
         <div class="chapter-title">【容貌囚徒】<br>我為什麼不好看？</div> <!-- Sticky 標題 -->
-        <div class="content">
+        <div class="content animate">
             <h2 style="margin-top: 20px;"><strong style="color: #94B2C6;">愛美，是天性的使然，還是社會的枷鎖？</strong></h2>
             <p>追求美，得以讓我們在社會中與他人互動、吸引，並成為自我表達的一種方式，這無疑是人類的天性。然而，隨著時代發展，現代社會不斷強調「美」的重要，讓我們陷入無止境的比較與自我懷疑。正如作家 Virginia Woolf 所說：「殺死幻影比殺死現實更難。」美貌，似乎正是那個幻影般的野獸，成為了無形的枷鎖，操縱著我們對自我的認知。
             </p>
@@ -755,7 +838,7 @@
         <div class="spacer" style="height: 50px;"></div>
 
        
-        <div class="content">
+        <div class="content animate">
             <h2 style="margin-top: 20px;"><strong style="color: #94B2C6;">不經意的話語，揮之不去的傷痕</strong></h2>
             <p>容貌焦慮，經常潛藏在我們最熟悉的環境。生活圈那些看似無心的評論，卻總在不經意間，深深刻劃在心底，留下難以抹去的印記。
             </p>
@@ -775,8 +858,10 @@
             </p>
             <p>每當回過神來，樂樂又會開始懷疑自己，為何總是無法控制地說出這種話，她無奈地說，「因為我就是過去這樣子，有負面的陰影，也有被傷過嘛。」這也導致她至今總是戴著口罩，「我甚至連回家都經常不把口罩拿下來，因為我覺得這是武裝自己的一種方式，」樂樂解釋道。她認為，戴上口罩可以掩蓋她的真實面貌，讓她不再受到評價和指指點點。
             </p>
-            
-            <p><strong style="color: #A1C1B3; font-style: italic;">「幸福的人用童年治癒一生，不幸的人用一生治癒童年」</strong></p>
+        </div>
+        <div class="content animate">    
+            <p><strong id="shadow-text" style="color: #A1C1B3; font-style: italic;">「幸福的人用童年治癒一生，不幸的人用一生治癒童年」</strong></p>
+
             <p>樂樂的情況，正如心理學家阿爾弗雷德·阿德勒（Alfred Adler）的名言，她說：「我知道自己已經改變了外在，但內心深處的陰影仍然存在，需要時間去消化。」過去的創傷，讓她在生活的每一個角落裡，都時時與自我抗爭。
             </p>
             <p>樂樂她明白，外表的改變或許可以短暫地帶來自信，但真正的自我接納，仍需要面對那些隱藏在心底的傷痕。諷刺的是，當她瘦身後，過去那些因為她體型而對她不友善的人，如今紛紛露出驚訝的表情，對她釋出以往沒有的友善和讚嘆。
@@ -789,7 +874,8 @@
             </p>
             <p>「這些照片證明我真的走過來了，」樂樂說道，語氣中帶著自信與驕傲。她透過這些照片，重新審視自己的蛻變歷程，並以此為動力，繼續追尋自我價值。
             </p>
-
+        </div>
+        <div class="content animate">
             <h2><strong style="color: #94B2C6;">他人塑造的自己</strong></h2>
             <p>原先在科技公司擔任工程師的小黑，因為遇上詐騙事件，為了存錢重整生活，而轉行到「按摩店」（俗稱風俗店、半套店）工作。儘管這些經歷充滿波折，她在談到過去時，依然掛著開朗的笑容，溫柔語氣中，帶著一絲自嘲。那些困難沒有擊垮她，反而顯得她更加堅韌。</p>
             <p>小黑的容貌焦慮，源自於國、高中時期，受到校園環境的壓力影響。「同學中長得比較醜或比較胖的，常常成為霸凌對象。我自己雖然沒有被霸凌，但總覺得自己被歸類為『普妹』，...，我一開始會有焦慮也是因為很怕被霸凌。」出於害怕遭受霸凌的心理，讓她深信，人們會理所當然地因長相而有差別待遇。
@@ -807,7 +893,8 @@
             </p>
             <p>談論到嚮往的樣貌時，Oscar Wilde 的話語尤為深刻：「我羨慕那些可以不在乎別人怎麼看的人」，這樣的感慨道出了容貌焦慮者內心深處的糾結。無論外界的標準如何變動，最難跨越的，往往是我們對自己的評價。
             </p>
-
+        </div>
+        <div class="content animate">
             <h2><strong style="color: #94B2C6;">不自信的心魔</strong></h2>
             <p>對口罩十分仰賴的張同學，與小黑和 Oscar Wilde 受到環境壓力的情況不同，他原本就對自己的外貌非常苛刻，甚至認為自己的照片「見不得人」，他將這種情感比作戴口罩的行為，都是為了隱藏不想讓人看到的「缺陷」。</p>
             <p>在國中時期，張同學曾經被同學評論長得像鄭捷，一名犯下嚴重刑案的罪犯。這個比喻讓張同學深受打擊，甚至使他一度不敢看鄭捷的照片，擔心自己真的長得與他相似。「有兩個人都講出一樣的話，我就開始想，別人看我是不是會覺得像在看殺人犯的感覺？」張同學說。
@@ -832,7 +919,7 @@
     <!-- 第三章 -->
     <div class="chapter-section" id="chapter3">
         <div class="chapter-title">【世代變遷】<br>容貌焦慮的轉變</div> <!-- Sticky 標題 -->
-        <div class="content">
+        <div class="content animate">
             <h2 style="margin-top: 20px;"><strong style="color: #94B2C6;">青春期：不穩定的自我認同</strong></h2>
             <p>在充滿變動與探索的青春期，青少年開始透過外界的眼光來確立自身的價值，尤其將容貌視為核心焦點。由於自我認同尚未健全，容易受到媒體、同儕以及家庭的影響。其中，又比其他年齡層更容易受到社群媒體的內容牽動。
             </p>
@@ -856,7 +943,8 @@
             </p>
             <p>然而，這種想法並非持續不斷，晴也意識到自己的感受有時是過於極端的。「大部分時候都是我自己想太多了，」她承認道，雖然她能夠理性地反思自己的焦慮，但自我懷疑依然不時湧現，突顯出她在自我接納與外界影響之間的掙扎。
             </p>
-
+        </div>
+        <div class="content animate">
             <h2><strong style="color: #94B2C6;">離開校園：學生跨入職場的角色轉變</strong></h2>
             <p>隨著成長與環境的變化，容貌焦慮並未隨著學業的結束而消失。相反地，面對全新的社會期待與專業形象要求，許多人在這個過渡階段中，經歷了不同形式的壓力。一方面，職場環境中的競爭讓個人更在意外貌是否符合專業形象的標準；另一方面，隨著自我認同逐漸建立，部分人也開始學會在這些標準中尋找自己的位置，甚至放下過去焦慮感。</p>
             <p>先前提到的小黑，原本受到校園同儕的影響而產生容貌焦慮。進入以男性為多數的科技業後，讓她感受到一種新的優勢。「在那種環境裡，女生相對比較吃香，」小黑解釋道，「我以前一直以為自己是外貌中下，但工程師的女生大部分都不會打扮，只要稍微打扮一下就算是中上了。」這種性別比例的不平衡，讓她不再是一個不起眼的「普妹」。</p>
@@ -884,7 +972,8 @@
             <p>不過，蔡明潔也透露，這種規範並非在所有老師中一視同仁。「我有聽說，現在年輕一輩的國文老師，會穿得比較性感，比如中空裝。」她表示，當學生告訴她時，她起初不敢相信，「我當時還跟他們說不太可能，因為我們這個行業對露膚的衣著其實非常要求。」
             </p>
             <p>「補習班嘛，說白了，就是經營個人魅力。有些年輕老師，尤其是男學生較多的班級，穿得稍微辣一點，其實也沒什麼問題。」她補充道，「我聽說她們會穿細肩帶和短褲，這還勉強在可接受範圍內。」她的話語不僅道出了傳統職業形象的壓力，也反映了隨著世代交替，某些規範正悄然改變。</p>
-
+        </div>
+        <div class="content animate">
             <h2><strong style="color: #8EAFC6;">人生中場：外貌與年齡的變遷</strong></h2>
             <p>談及容貌焦慮，許多研究資料與報導往往集中於青少年群體，尤其是在社群媒體盛行氛圍下，年輕人受到的影響最容易觀察。然而，醫美行業卻敏銳地捕捉到中年族群對於「凍齡」和延緩衰老的渴望。</p>
             <p>以鳳凰電波為例，廣告以「與時間逆行」為標語，從網路到街頭、公車廣告牌隨處可見。醫美診所甚至以「40歲，活得像少女」、「年過40大齡剩女!?你若有以下情況要注意！」等語句吸引目光，試圖喚起中年女性對容貌的擔憂。</p>
@@ -905,7 +994,8 @@
             </p>
             <p>「她們以為改變外貌就能改變人生，但當手術結束後，生活並沒有如願改善，反而使她們更加挫折。」小黑認為，這些人的容貌焦慮背後，其實更多反映出她們對愛情與生活缺乏掌控感，而整形手術，僅僅是她們試圖找回控制感的途徑，然而卻常常以失敗告終。
             </p>
-
+        </div>
+        <div class="content animate">
             <h2><strong style="color: #94B2C6;">容貌焦慮，隨歲月流轉</strong></h2>
             <p>在人生的不同階段，煩惱會隨之改變。同樣地，年輕時對外貌的焦慮，隨著成長也會有不同的視角。曾因鼻子被嘲笑的 Oscar Wilde，如今已放下對外表的執著，語氣中帶著一絲釋然。他回憶道：「隨著年紀增長，特別是出國後，看到更多的人和事，你會發現，容貌的問題其實微不足道。」他感慨道，很多不符合主流審美的人也過得很好，這讓他意識到，外貌並不是一切。</p>
             <p>Oscar Wilde 提到，如今社會對外貌的討論越來越激烈時，他已經不會受到太大的影響，因為他早已過了「在乎別人怎麼看」的階段。然而，他承認，假如他再年輕 20 歲，生活在如今社群媒體盛行的時代，可能會有不一樣的感受。「以前我們沒有這些技術，所以我們只能接受自己的樣子」他說，現在大家可以通過修圖輕鬆改變外貌，但也可能造成現實和虛擬形象的割裂，讓人迷失在其中。他不諱言說道，「說難聽一點，我覺得這是自欺欺人的行為」。
@@ -913,7 +1003,7 @@
             <p>Oscar Wilde 認為，隨著科技進步，人們對外貌的焦慮與對認同的渴求只是換了一種形式來呈現。談到社群媒體上精修的照片，他表示理解：「有些人可能只是在尋求外界的認同，特別是在外貌上。」他表示，這樣的行為背後，反映了人們在當今社會中對外貌的依賴和對自我價值感的追求。
             </p>
             <p>最後，Oscar Wilde 淡然地表示，外貌是天生的，並非個人能掌控的部分。「雖然你無法選擇自己的外貌，但你可以決定如何呈現自己。」這番話強調了後天自我認同的重要性，他認為，真正的自信來自內在的平衡與自我認同，而不是外在的修飾。</p>
-
+        </div>
 
 
         </div>
@@ -927,12 +1017,12 @@
         
     </section>
     <!-- 新增的空白區域，確保足夠高度來觸發滾動效果 -->
-    <section class="empty-section" style="height: 80vh;"></section>
+    <section class="empty-section" style="height: 100vh;"></section>
 
     <!-- 第四章 -->
      <div class="chapter-section" id="chapter4">
         <div class="chapter-title">【掙脫枷鎖】<br>容貌焦慮的解方 </div> <!-- Sticky 標題 -->
-        <div class="content">
+        <div class="content animate">
             <h2 style="margin-top: 20px;"><strong style="color: #6689A1;">社群媒體角色的重新定義</strong></h2>
             <p>面對社群媒體帶來的種種負面影響，兒福聯盟提出了「數位排毒」的建議，呼籲年輕人減少使用社群媒體，以緩解容貌焦慮。這類建議在網路討論中也屢見不鮮，不少人認為「少看小紅書、不要修圖」即可解決容貌焦慮問題。
             </p>
@@ -946,7 +1036,8 @@
             <p>同時，樂樂也會特別避免接觸負面內容。「我已經盡量讓自己保持在正面的軌道上，如果看了負面的東西，可能會引發不好的念頭，甚至讓我做出傷害自己的行為，」樂樂表示。她透過篩選有益的內容，在社群媒體中找到了正向的支持，並小心地控制與網路的互動。</p>
             <p>由此可見，如何使用和看待社群媒體，決定了它在生活中的角色。補習班老師蔡明潔觀察到，「社群媒體確實展示了多元的美，但孩子們還是會被身邊的同儕影響，去追隨那些特定的標準。」她透過觀察學生，發現壓力大多來自同儕間的比較，而非社群媒體本身。</p>
             <p>社群平台的影響力在於使用者如何掌握平衡。能夠設立健康的使用界限、並挑選積極內容的人，通常能從中獲得靈感和心理支持，而不會陷入與他人比較的焦慮之中。相反，過度沉迷於追求完美的人，則容易被平台帶來的壓力壓垮。因此，學會篩選和批判性地看待內容，社群媒體便能成為促進個人成長的工具，而非焦慮的來源。</p>
-
+        </div>
+        <div class="content animate">
             <h2><strong style="color: #6689A1;">心理重建：以專業治療擺脫焦慮</strong></h2>
             <p>解決容貌焦慮需要從多方面著手，包括心理支持、社會認同和個人的調適策略。對於嚴重影響日常生活者，身心科醫師、心理諮商師能夠提供專業的評估和治療，幫助患者了解焦慮來源，制定合適的治療方案，幫助他們逐漸重建自信。</p>
             <p>如同樂樂聽取心理師的建議，她開始以減重為契機，學習面對過去的陰影。她強調：「我需要一個完全不認識我的人來說服我，幫助我重新看待自己，這樣我才能慢慢改變自己的想法。」減重後的顯著變化，給予她前所未有的自信，也讓她在面對曾經嘲笑過她的人時，不再退縮。雖然，真正讓她重新審視自我的轉折點，仍源自於外貌的改變，但對樂樂而言，外在的蛻變成為她內在力量的來源，賦予她面對過去傷痛的勇氣。</p>
@@ -959,8 +1050,9 @@
             <p>另外，國外更嘗試以法律手段來應對容貌焦慮。2022年，挪威實施《行銷管制法》，要求媒體廣告中如果修圖改變了身形或皮膚狀況，必須明確標示。這樣的措施，旨在減少消費者對完美外貌的過度追求，進而減少容貌焦慮。林佳瑾認為，這種增加現實感的做法有助於降低人們對外貌的過高期待，並可能減少焦慮的發生。</p>
             <p>然而，黃偉俐對此持懷疑態度。他指出，歷史已多次證明，試圖抑制人類慾望的努力很難成功。「這個社會上，任何抑制人類慾望的企圖，從來沒有成功過。」他舉例說，鄂圖曼土耳其帝國曾試圖禁止咖啡，因為國王認為人民沉迷於咖啡館閒談，導致社會懈怠。然而，禁令以失敗告終，顯示出單純的法律約束難以改變深層的社會習慣。</p>
             <p>黃偉俐進一步強調：「這就像試圖在社群媒體上禁止美化內容，最終那些人乾脆去做整形，然後說，『我就是比你美，我有錢去做整形。』」在他看來，這樣的法律最終只會將問題轉化為另一種消費焦慮，無法從根本上解決容貌焦慮的問題。因此，他強調，解決容貌焦慮的關鍵還在於培養獨立思考的能力，幫助個人正視自己的內心需求與慾望。</p>
+        </div>
 
-        
+        <div class="content animate">
             <h2><strong style="color: #6689A1;">看見曙光：自我調適與接納</strong></h2>
             <p>在走出容貌焦慮的過程中，建立穩健的心理支持環境相當重要。有時候，與家人坦誠交流能成為擺脫容貌焦慮的重要轉折點。不過，正如身心科醫師張哲嘉所言，許多青少年不願意向周圍的人坦露受到外貌問題的困擾，而是身體不適、翹課等形式來表達壓力。</p>
             <p>張哲嘉指出，青少年擔心討論容貌問題會讓他們顯得自戀，因此選擇隱藏這些感受。大學生張同學也透露，他曾有相似的經歷：「大部分的人認為太在意外貌很膚淺，所以我通常只敢和心理師或醫師談這些。」除非是匿名發文，否則他不會在網路上發表相關言論，避免被認出或受到評判。</p>
@@ -970,7 +1062,6 @@
             <p>Oscar Wilde的經驗則道出，隨著閱歷增廣與跨文化的接觸，能夠更專注於內在成長，減少對外貌的關注。他分享，出國留學和工作經歷讓他看到了不同的價值觀，這讓他意識到，外貌並不是生活中最重要的事情。</p>
             <p>除了學習如何調適外，預防往往勝於治療。其中，媒體素養教育扮演著不可忽視的角色。青少年處於自我認知發展的關鍵階段，人際關係的重心從家庭逐漸轉向同儕與網絡，因此更容易受到線上內容的影響。因此，學校應營造多元包容的學習環境，並積極融入媒體素養的課程，透過培養學生的批判性思考能力，幫助他們更理性地看待媒體的影響，建立健康的自我形象。</p>
             <p>要掙脫容貌焦慮的枷鎖，首先需要正確認識它，而不是將「愛美」或自卑情緒過度病態化。同時，容貌焦慮並不僅是個人的問題，它反映了媒體、家庭和同儕等多重管道帶來的社會文化影響。唯有學會與焦慮共存，不讓它掌控生活，才能真正走向內心的平靜。</p>
-
 
         </div>
     </div>
@@ -1009,51 +1100,38 @@
             chapters.forEach(chapter => {
                 const chapterTop = chapter.getBoundingClientRect().top;
                 const content = chapter.querySelector('.content');
-                const title = chapter.querySelector('.chapter-title');
 
                 // 特別處理第二章內文顯示
                 if (chapter.id === 'chapter2') {
                     const unityIframe = document.querySelector('.unity-iframe');
                     const unityTop = unityIframe.getBoundingClientRect().top;
 
-                    // 讓第二章標題在 Unity 出現時顯示
-                    if (unityTop < windowHeight * 0.9) {
-                        title.classList.add('sticky');
-                    }
-
                     // 讓內文稍後才顯示
                     if (chapterTop < windowHeight * 0.5) {
-                        content.style.opacity = '1';
-                        content.style.transform = 'translateY(0)';
+                        content.classList.add('show');
                     } else {
-                        content.style.opacity = '0';
-                        content.style.transform = 'translateY(50px)';
+                        content.classList.remove('show');
                     }
                 } else {
                     // 其他章節保留原本邏輯
                     if (chapterTop < windowHeight * 0.1) {
-                        chapter.classList.add('visible');
-                        chapter.style.opacity = '1'; 
-                        chapter.style.transform = 'translateY(0)';
+                        content.classList.add('show');
                     } else {
-                        chapter.classList.remove('visible');
-                        chapter.style.opacity = '0';
-                        chapter.style.transform = 'translateY(50px)';
+                        content.classList.remove('show');
                     }
                 }
             });
         }
 
+
         // Sticky 標題處理邏輯
         function handleStickyTitles(scrollPosition) {
             const titles = document.querySelectorAll('.chapter-title');
-            const contents = document.querySelectorAll('.content');
             const windowHeight = window.innerHeight;
 
-            titles.forEach((title, index) => {
-                const currentContent = contents[index];
-                const sectionTop = currentContent.getBoundingClientRect().top;
-                const sectionBottom = currentContent.getBoundingClientRect().bottom;
+            titles.forEach((title) => {
+                const sectionTop = title.getBoundingClientRect().top;
+                const sectionBottom = title.getBoundingClientRect().bottom;
 
                 // 特別處理第二章的標題
                 if (title.parentElement.id === 'chapter2') {
@@ -1066,14 +1144,14 @@
                         title.classList.remove('sticky');
                     }
                 } else {
-                    // 其他章節保留原本邏輯
+                    // 其他章節保留原本邏輯，僅根據標題的視口位置決定
                     const isInView = sectionTop < windowHeight && sectionBottom > 0;
                     title.classList.toggle('sticky', isInView);
-                    currentContent.classList.toggle('sticky', isInView);
-                    title.classList.toggle('hide', !isInView);
+                    title.classList.toggle('hide', !isInView);  // 這裡確保只有當不在視口時才隱藏
                 }
             });
         }
+
 
         // 圖片切換邏輯
         function handleImageSwitching(scrollPosition) {
@@ -1353,6 +1431,22 @@
         
             resultDiv.textContent = `你的總得分是 ${score} 分。${resultText}`;
         }
+        document.addEventListener('scroll', function() {
+            const contents = document.querySelectorAll('.content.animate'); // 只選取帶有 .animate 的元素
+
+            contents.forEach(content => {
+                const contentTop = content.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+
+                // 滾動到合適位置時，添加 .show 類名來顯示內容
+                if (contentTop < windowHeight - 50) {
+                    content.classList.add('show');
+                } else {
+                    content.classList.remove('show');
+                }
+            });
+        });
+
     </script>
 </body>
 </html>
