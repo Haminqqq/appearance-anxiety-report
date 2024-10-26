@@ -544,55 +544,52 @@
             }
             });
 
+            document.addEventListener('DOMContentLoaded', function() {
+                const gameHint = document.getElementById('game-hint');
+                const gameHintParagraph = gameHint.querySelector('p'); // 取得 game-hint 內的 <p> 元素
+                const gameIframe = document.querySelector('iframe');
+                let hasShownHint = false;
+                const iframes = document.querySelectorAll('iframe, .unity-iframe');
 
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const gameHint = document.getElementById('game-hint');
-            const gameHintParagraph = gameHint.querySelector('p'); // 取得 game-hint 內的 <p> 元素
-            const gameIframe = document.querySelector('iframe');
-            let hasShownHint = false;
-            const iframes = document.querySelectorAll('iframe, .unity-iframe');
-
-            // 當遊戲結束時恢復滾動
-            function enableScroll() {
-                document.body.style.overflowY = 'auto';
-            }
-
-            // 監聽遊戲結束的訊息
-            window.addEventListener('message', (event) => {
-                if (event.data === 'gameOver') {
-                    enableScroll();
+                // 當遊戲結束時恢復滾動
+                function enableScroll() {
+                    document.body.style.overflowY = 'auto';
                 }
-            });
 
-            // 當在 iframe 上滾動時，將事件傳遞給父頁面
-            iframes.forEach(iframe => {
-                iframe.contentWindow.addEventListener('wheel', (event) => {
-                    event.preventDefault(); // 禁止 iframe 自己的滾動
-                    window.scrollBy(0, event.deltaY); // 傳遞滾動事件到父頁面
+                // 監聽遊戲結束的訊息
+                window.addEventListener('message', (event) => {
+                    if (event.data === 'gameOver') {
+                        enableScroll();
+                    }
+                });
+
+                // 當在 iframe 上滾動時，將事件傳遞給父頁面
+                iframes.forEach(iframe => {
+                    iframe.contentWindow.addEventListener('wheel', (event) => {
+                        event.preventDefault(); // 禁止 iframe 自己的滾動
+                        window.scrollBy(0, event.deltaY); // 傳遞滾動事件到父頁面
+                    });
+                });
+
+                // 監聽 Godot 發送的加載完成訊息
+                window.addEventListener('message', function(event) {
+                    if (event.data === 'gameLoaded' && !hasShownHint) {
+                        // 游戏加载完成，显示提示框
+                        setTimeout(function() {
+                            gameHint.style.opacity = '1'; // 显示提示框
+                            gameHintParagraph.style.opacity = '1'; // 显示提示框
+
+                            // 3秒后隐藏提示框
+                            setTimeout(function() {
+                                gameHint.style.opacity = '0'; // 隐藏提示框
+                                gameHintParagraph.style.opacity = '0'; // 隐藏提示框
+                            }, 5000); // 3秒后自动隐藏
+                        }, 1000); // 延迟 1 秒后显示提示框，确保游戏画面完全加载
+                        hasShownHint = true; // 标记提示框已显示
+                    }
                 });
             });
-    
 
-            // 当游戏加载完成时执行
-            gameIframe.onload = function() {
-                if (!hasShownHint) {
-                    // 游戏加载完成，显示提示框
-                    setTimeout(function() {
-                        gameHint.style.opacity = '1'; // 显示提示框
-                        gameHintParagraph.style.opacity = '1'; // 显示提示框
-
-                        // 3秒后隐藏提示框
-                        setTimeout(function() {
-                            gameHint.style.opacity = '0'; // 隐藏提示框
-                            gameHintParagraph.style.opacity = '0'; // 隐藏提示框
-                        }, 3000); // 3秒后自动隐藏
-                    }, 1000); // 延迟 1 秒后显示提示框，确保游戏画面完全加载
-                    hasShownHint = true; // 标记提示框已显示
-                }
-            };
-        });
     </script>
     
     <div class="hero">
