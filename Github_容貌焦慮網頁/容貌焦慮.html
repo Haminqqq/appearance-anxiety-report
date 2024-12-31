@@ -397,8 +397,8 @@
 
         .chapter-title {
             font-family: 'NewTegomin', serif; /* 字體 */
-            font-size: clamp(0.6em, 2vw, 1.6em); /* 響應式字體大小 */
-            text-align: right; /* 向右對齊 */
+            font-size: clamp(1.3em, 2vw, 1.6em); /* 響應式字體大小 */
+            text-align: left; /* 向左對齊 */
             margin-right: clamp(-20px, -3vw, -3vw); /* 初始為 -10px，隨螢幕寬度調整 */
             color: white; /* 文字顏色 */
             display: block; /* 設為塊級元素 */
@@ -407,18 +407,20 @@
             z-index: 10; /* 確保顯示在上層 */
         }
 
-        /* 小螢幕樣式 */
-        @media (max-width: 768px) {
+       /* 手機寬度時，垂直排列且位於右邊 */
+        @media (max-width: 960px) {
             .chapter-title {
-                opacity: 0; /* 標題逐漸消失 */
-                pointer-events: none; /* 避免影響其他操作 */
+                writing-mode: vertical-rl; /* 垂直排列，從右到左 */
+                position: absolute; /* 使用絕對定位 */
+                right: 10px; /* 距離右側 10px */
+                top: 20px; /* 距離容器頂部 20px */
+                margin-right: 0; /* 移除多餘的右邊距 */
+                line-height: 1.5; /* 增加行距，讓字距更舒適 */
+                text-align: inherit; /* 自然對齊 */
             }
         }
-       
 
         
-
-                
     
 
         .chapter-title.sticky {
@@ -452,12 +454,13 @@
             min-height: 100vh; /* 最小高度設置為視窗高度，但允許內容超出時自動增高 */
             padding: 80px 30px 30px 30px; /* 增加頂部距離，保留左右和底部 */
             box-sizing: border-box; /* 確保 padding 被包含在元素的高度中 */
+            position: relative; /* 父容器設為 relative，作為定位基準 */
         }
         
         /* 這是針對 Unity 遊戲的專屬 iframe 樣式 */
         .unity-iframe {
-            width: clamp(300px, 80%, 960px); /* 響應式寬度，最小300px，最大960px */
-            height: 540px; /* 高度根據寬度的16:9比例自動調整 */
+            width: 960px;           /* 設置 Unity 遊戲的具體寬度 */
+            height: 540px;          /* 設置 Unity 遊戲的具體高度 */
             margin: 0 auto; /* 水平居中 */
             display: block; /* 設置塊級元素 */
             border: none; /* 無邊框 */
@@ -639,7 +642,7 @@
             cursor: pointer; /* 滑鼠手形 */
             text-align: center; /* 文字置中 */
             transition: background-color 0.3s ease, color 0.3s ease;
-            float: right; /* 按鍵浮動到右邊 */
+            float: none; /* 按鍵浮動到右邊 */
         }
 
 
@@ -1107,8 +1110,9 @@
         
             <!-- 故事內容區 -->
             <div id="story-content" style="display: none;">
-                <button id="back-to-cards">返回</button>
+                
                 <div id="story-text"></div>
+                <button id="back-to-cards">返回</button>
             </div>
         </div>
         
