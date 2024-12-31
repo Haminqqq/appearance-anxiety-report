@@ -75,6 +75,8 @@
     </script>
     
     <style>
+
+ 
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background: linear-gradient(#8C8069, #F3E6CC);
@@ -83,9 +85,22 @@
             padding: 0;
             line-height: 1.6;
             transition: background 0.5s ease-in-out;
- 
-  
         }
+
+        .container {
+        display: flex;
+        flex-direction: column; /* 元素垂直排列 */
+        align-items: flex-start; /* 左對齊 */
+        gap: 10px; /* 元素之間的間距 */
+    }
+
+        img {
+            max-width: 100%; /* 確保圖片不會超出容器 */
+            height: auto; /* 保持圖片比例 */
+        }
+
+
+        
         header {
             background-color: #000000;
             padding: 40px 20px;
@@ -159,16 +174,8 @@
             pointer-events: none; /* 禁用标题的点击事件，使下层元素可以拖动 */
         }
                 
-        .hero h1, .hero p {
-            color: #ffffff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            opacity: 0; /* 初始透明度為0 */
-            transition: opacity 2s ease-in-out; /* 添加淡入過渡效果 */
-            margin: 0; 
-            padding: 0; 
-            text-align: center; /* 置中 */
-            font-size: clamp(2em, 5vw, 3em); /* 設置響應式字體大小 */
-        }
+        
+    
         .no-shadow {
             font-size: 2em; /* 設置比內文更大的字體大小 */
             font-weight: bold; /* 設置粗體 */
@@ -191,14 +198,27 @@
 
 
         .hero h1 {
-            font-size: 4em;
+            font-size: clamp(1rem, 6vw, 4em); /* 設置響應式字體大小 */
             font-weight: 700;
         }
 
         .hero p {
-            font-size: 1.5em;
+            font-size: clamp(0.5rem, 3vw, 1.5em); /* 設置響應式字體大小 */
             margin-bottom: 30px;
         }
+
+
+        .hero h1, .hero p {
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            opacity: 0; /* 初始透明度為0 */
+            transition: opacity 2s ease-in-out; /* 添加淡入過渡效果 */
+            margin: 0; 
+            padding: 0; 
+            text-align: center; /* 置中 */
+            
+        }
+
         .interactive-game {
             position: absolute;
             top: 0;
@@ -339,13 +359,13 @@
             background-color: rgba(255, 255, 255, 0.9); /* 半透明白底 */
             border-radius: 10px; /* 圓角讓重疊處更自然 */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 添加陰影 */
-            padding: 20px 40px; /* 調整內邊距 */
-            margin: 0px auto 30px auto; /* 使用負值上邊距來重疊區塊 */
-            max-width: 660px;
+            padding: 10px 40px 10px 40px; /* 內邊距確保內容與邊框距離一致 */
             color: #3E3E40;
-            font-size: 1.1em;
             z-index: 1; /* 確保內容顯示在其他背景上方 */
-        }
+            width: clamp(300px, 45%, 640px); /* 使用 clamp 設置響應式寬度 */
+            margin: 20px auto; /* 上下邊距 20px，水平置中 */
+            font-size: clamp(0.9rem, 4vw, 1.2rem); /* 響應式字體大小 */
+            }
 
         .content h2 {
             position: absolute;
@@ -354,7 +374,7 @@
             transform: translateX(-50%);
             background-color: transparent; /* 確保 h2 背景透明 */
             z-index: 2; /* 確保位於白底之上 */
-            font-size: 1.4em;
+            font-size: clamp(1rem, 4vw, 1.4rem); /* 響應式字體大小 */
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* 添加陰影效果 */
         }
         h2 {
@@ -376,17 +396,29 @@
         }
 
         .chapter-title {
-            font-family: 'NewTegomin', serif; /* 使用新字體 */
-            top: 50px;
-            font-size: clamp(0.8em, 4vw, 1.6em); /* 自適應字體大小 */
-            z-index: 10;
-            color: white;
-            transition: position 0.5s ease-in-out; /* 平滑过渡效果 */
-            text-align: right; /* 向右靠齊 */
-            margin-right: -10px; /* 增加右邊距離 */
+            font-family: 'NewTegomin', serif; /* 字體 */
+            font-size: clamp(0.6em, 2vw, 1.6em); /* 響應式字體大小 */
+            text-align: right; /* 向右對齊 */
+            margin-right: clamp(-20px, -3vw, -3vw); /* 初始為 -10px，隨螢幕寬度調整 */
+            color: white; /* 文字顏色 */
+            display: block; /* 設為塊級元素 */
+            text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5); /* 添加文字下方半透明陰影 */
+            position: relative; /* 為需要的定位做準備 */
+            z-index: 10; /* 確保顯示在上層 */
         }
 
+        /* 小螢幕樣式 */
+        @media (max-width: 768px) {
+            .chapter-title {
+                opacity: 0; /* 標題逐漸消失 */
+                pointer-events: none; /* 避免影響其他操作 */
+            }
+        }
+       
+
         
+
+                
     
 
         .chapter-title.sticky {
@@ -424,18 +456,22 @@
         
         /* 這是針對 Unity 遊戲的專屬 iframe 樣式 */
         .unity-iframe {
-            width: 960px;           /* 設置 Unity 遊戲的具體寬度 */
-            height: 540px;          /* 設置 Unity 遊戲的具體高度 */
-            margin: 0 auto;         /* 讓 Unity 遊戲水平居中 */
-            display: block;         /* 設置 iframe 為塊級元素，避免繼承行內元素樣式 */
-            border: none;           /* 無邊框 */
+            width: clamp(300px, 80%, 960px); /* 響應式寬度，最小300px，最大960px */
+            height: 540px; /* 高度根據寬度的16:9比例自動調整 */
+            margin: 0 auto; /* 水平居中 */
+            display: block; /* 設置塊級元素 */
+            border: none; /* 無邊框 */
             pointer-events: auto;
-            margin-bottom: 100px; /* 增加距離，使遊戲和下文有更多間隔 */
-            opacity: 0;
+            margin-bottom: 5vh; /* 增加下文間距 */
+            opacity: 0; /* 初始透明度 */
             transition: opacity 2s ease-in-out; /* 設置淡入過渡效果 */
-            border-radius: 20px; /* 設置圓角，20px 可以根據需要調整 */
+            border-radius: 20px; /* 設置圓角 */
             overflow: hidden; /* 確保圓角內容不溢出 */
+            max-width: 100%; /* 確保寬度不超出父容器 */
         }
+    
+
+
         .unity-iframe.visible {
             opacity: 1; /* 使其可見 */
         }
